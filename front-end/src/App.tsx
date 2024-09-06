@@ -1,6 +1,11 @@
-import { useEffect } from "react";
-import { Redirect, Route } from "react-router-dom";
-import { IonApp, IonRouterOutlet, setupIonicReact } from "@ionic/react";
+import { useEffect, useState } from "react";
+import { Redirect, Route, Switch } from "react-router-dom";
+import {
+  IonApp,
+  IonLoading,
+  IonRouterOutlet,
+  setupIonicReact,
+} from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import Home from "./pages/Home";
 
@@ -35,35 +40,54 @@ import "./theme/variables.css";
 import { getAuthToken } from "./preferences/auth";
 import useAuth from "./hooks/useAuth";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 setupIonicReact();
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated } = useAuth();
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const checkAuth = async () => {
-      const authToken = await getAuthToken();
-      if (authToken.value) {
-        setIsAuthenticated(true);
+      try {
+        const authToken = await getAuthToken();
+        console.log("Auth Token:", authToken); // Debugging line
+        setIsAuthenticated(!!authToken.value);
+      } catch (error) {
+        console.error("Error fetching auth token:", error);
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false); // Set loading to false when done
       }
     };
     checkAuth();
-  }, []);
+  }, [setIsAuthenticated]);
+
+  console.log(isAuthenticated);
+
+  // if (loading) {
+  //   // Optionally render a loading spinner or component
+  //   return <IonLoading isOpen={true} message="Loading..." />;
+  // }
+  if (loading) return <div>Loading...</div>;
+
   return (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
-          <Route path="/login" component={Login} />
-          <Route path="/home" component={Home} />
-          {isAuthenticated ? (
-            <Route>
-              <Redirect to="/home" />
+          <Switch>
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/home" component={Home} />
+            <Route path="/register" component={Register} />
+            {/* Redirect if not authenticated */}
+            <Route exact path="/">
+              {isAuthenticated ? (
+                <Redirect to="/home" />
+              ) : (
+                <Redirect to="/login" />
+              )}
             </Route>
-          ) : (
-            <Route>
-              <Redirect to="/login" />
-            </Route>
-          )}
+          </Switch>
         </IonRouterOutlet>
       </IonReactRouter>
     </IonApp>
