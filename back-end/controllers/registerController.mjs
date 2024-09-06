@@ -26,7 +26,6 @@ const registerController = async (req, res) => {
 
     // Create new user
     const hashedPassword = await encryptPassword(password);
-    console.log(hashedPassword);
     const newUser = await User.create({
       username,
       email,
