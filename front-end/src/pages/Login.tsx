@@ -16,8 +16,8 @@ import { Link } from "react-router-dom";
 import { logInOutline } from "ionicons/icons";
 import TechHub from "../assets/TechHub_Logo.svg";
 import { FormEvent, useState } from "react";
-import apiClient from "../services/apiClient";
 import { setAuthToken } from "../preferences/auth";
+import axios from "axios";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -40,14 +40,16 @@ const Login = () => {
     event.preventDefault();
     presentLogging({ message: "Logging in..." });
     try {
-      const res = await apiClient.post("/api/login", {
+      const res = await axios.post("http://localhost:3000/api/login", {
         username,
         password,
       });
       if (res.status === 200) {
         console.log(res.data);
         setAuthToken(res.data.accessToken);
-        router.push("/home");
+        setTimeout(() => {
+          router.push("/tabs/home");
+        }, 100);
       }
       dismissLogging();
     } catch (error) {
