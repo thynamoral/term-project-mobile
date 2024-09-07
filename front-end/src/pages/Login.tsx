@@ -5,20 +5,25 @@ import {
   IonInput,
   IonItem,
   IonList,
+  IonLoading,
   IonPage,
   IonText,
+  useIonAlert,
+  useIonLoading,
   useIonRouter,
 } from "@ionic/react";
 import { Link } from "react-router-dom";
 import { logInOutline } from "ionicons/icons";
 import TechHub from "../assets/TechHub_Logo.svg";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import apiClient from "../services/apiClient";
 import { setAuthToken } from "../preferences/auth";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const router = useIonRouter();
+  const [presentLogging, dismissLogging] = useIonLoading();
+  const [presentAlert] = useIonAlert();
 
   // handle change username
   const handleUsername = (event: CustomEvent) => {
@@ -33,8 +38,7 @@ const Login = () => {
   // handle login
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Login");
-
+    presentLogging({ message: "Logging in..." });
     try {
       const res = await apiClient.post("/api/login", {
         username,
@@ -45,8 +49,15 @@ const Login = () => {
         setAuthToken(res.data.accessToken);
         router.push("/home");
       }
+      dismissLogging();
     } catch (error) {
       console.log(error);
+      presentAlert({
+        header: "Error",
+        message: "Invalid username or password",
+        buttons: ["OK"],
+      });
+      dismissLogging();
     }
   };
 
@@ -92,6 +103,7 @@ const Login = () => {
                 className="ion-margin-top"
                 value={username}
                 onIonInput={handleUsername}
+                required
               />
             </IonItem>
             <IonItem>
@@ -103,6 +115,7 @@ const Login = () => {
                 className="ion-margin-top"
                 value={password}
                 onIonInput={handlePassword}
+                required
               />
             </IonItem>
           </IonList>

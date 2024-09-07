@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
-import {
-  IonApp,
-  IonLoading,
-  IonRouterOutlet,
-  setupIonicReact,
-} from "@ionic/react";
+import { IonApp, IonRouterOutlet, setupIonicReact } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import Home from "./pages/Home";
 
@@ -41,6 +36,7 @@ import { getAuthToken } from "./preferences/auth";
 import useAuth from "./hooks/useAuth";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Tabs from "./pages/Tabs";
 
 setupIonicReact();
 
@@ -53,40 +49,36 @@ const App = () => {
         const authToken = await getAuthToken();
         console.log("Auth Token:", authToken); // Debugging line
         setIsAuthenticated(!!authToken.value);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching auth token:", error);
         setIsAuthenticated(false);
-      } finally {
-        setLoading(false); // Set loading to false when done
+        setLoading(false);
       }
     };
     checkAuth();
   }, [setIsAuthenticated]);
 
-  console.log(isAuthenticated);
-
-  // if (loading) {
-  //   // Optionally render a loading spinner or component
-  //   return <IonLoading isOpen={true} message="Loading..." />;
-  // }
-  if (loading) return <div>Loading...</div>;
+  if (loading) return;
 
   return (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
           <Switch>
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/home" component={Home} />
-            <Route path="/register" component={Register} />
-            {/* Redirect if not authenticated */}
-            <Route exact path="/">
-              {isAuthenticated ? (
-                <Redirect to="/home" />
-              ) : (
-                <Redirect to="/login" />
-              )}
-            </Route>
+            {/* authentication routes */}
+            {isAuthenticated ? (
+              <>
+                <Route exact path="/tabs" component={Tabs} />
+                <Redirect exact from="/tabs/home" to="/tabs" />
+              </>
+            ) : (
+              <>
+                <Route exact path="/login" render={() => <Login />} />
+                <Route path="/register" render={() => <Register />} />
+                <Redirect exact from="/" to="/login" />
+              </>
+            )}
           </Switch>
         </IonRouterOutlet>
       </IonReactRouter>

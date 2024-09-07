@@ -8,10 +8,64 @@ import {
   IonList,
   IonPage,
   IonText,
+  useIonAlert,
+  useIonLoading,
+  useIonRouter,
 } from "@ionic/react";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import registerSchema, { TRegisterSchema } from "../schemas/registerSchema";
+import apiClient from "../services/apiClient";
+import { AxiosError } from "axios";
 
 const Register = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+    },
+    mode: "onChange",
+  });
+  const router = useIonRouter();
+  const [signingUp, dismissSigningUp] = useIonLoading();
+  const [presentAlertSuccess] = useIonAlert();
+  const [presentAlertError] = useIonAlert();
+
+  const handleRegister = async (data: TRegisterSchema) => {
+    signingUp({ message: "Signing up..." });
+    try {
+      const res = await apiClient.post("/api/register", data);
+      if (res.status === 201) {
+        console.log(res.data);
+      }
+      dismissSigningUp();
+      presentAlertSuccess({
+        header: "Success",
+        message: "Account created successfully!",
+        buttons: ["OK"],
+        onDidDismiss: () => {
+          router.push("/login");
+        },
+      });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        presentAlertError({
+          header: "Error",
+          message: error?.response?.data?.message,
+          buttons: ["OK"],
+        });
+      }
+      dismissSigningUp();
+    }
+  };
+
   return (
     <IonPage>
       <IonContent className="ion-padding">
@@ -34,7 +88,7 @@ const Register = () => {
         >
           Create an account to get started with us!
         </p>
-        <form>
+        <form onSubmit={handleSubmit(handleRegister)}>
           <IonList>
             <IonItem>
               <IonInput
@@ -43,8 +97,14 @@ const Register = () => {
                 labelPlacement="floating"
                 placeholder="Enter your username"
                 className="ion-margin-top"
+                {...register("username")}
               />
             </IonItem>
+            {errors.username && (
+              <p style={{ color: "red", margin: 0, marginLeft: "16px" }}>
+                {errors.username.message}
+              </p>
+            )}
             <IonItem>
               <IonInput
                 type="email"
@@ -52,8 +112,14 @@ const Register = () => {
                 labelPlacement="floating"
                 placeholder="Enter your email"
                 className="ion-margin-top"
+                {...register("email")}
               />
             </IonItem>
+            {errors.email && (
+              <p style={{ color: "red", margin: 0, marginLeft: "16px" }}>
+                {errors.email.message}
+              </p>
+            )}
             <IonItem>
               <IonInput
                 type="password"
@@ -61,8 +127,14 @@ const Register = () => {
                 labelPlacement="floating"
                 placeholder="Enter your password"
                 className="ion-margin-top"
+                {...register("password")}
               />
             </IonItem>
+            {errors.password && (
+              <p style={{ color: "red", margin: 0, marginLeft: "16px" }}>
+                {errors.password.message}
+              </p>
+            )}
           </IonList>
           <IonButton
             expand="block"

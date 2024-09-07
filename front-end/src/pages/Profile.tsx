@@ -6,12 +6,12 @@ import {
   IonToolbar,
 } from "@ionic/react";
 
-const Home = () => {
+const Profile = () => {
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Home</IonTitle>
+          <IonTitle>Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">UI goes here...</IonContent>
@@ -19,4 +19,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Profile;

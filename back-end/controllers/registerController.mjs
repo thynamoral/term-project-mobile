@@ -5,7 +5,9 @@ const registerController = async (req, res) => {
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
-    res.status(400).json({ message: "Invalid credentials!" });
+    res
+      .status(400)
+      .json({ message: "username, email, and password are required!" });
     return;
   }
 
@@ -13,14 +15,14 @@ const registerController = async (req, res) => {
     // Check if user already exists
     const foundUser = await User.findOne({ username }).exec();
     if (foundUser) {
-      res.status(400).json({ message: "User already exists!" });
+      res.status(400).json({ message: "username or email already exists!" });
       return;
     }
 
     // Check if email already exists
     const foundEmail = await User.findOne({ email }).exec();
     if (foundEmail) {
-      res.status(400).json({ message: "Email already exists!" });
+      res.status(400).json({ message: "username or email already exists!" });
       return;
     }
 
