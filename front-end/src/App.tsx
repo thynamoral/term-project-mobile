@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import { Redirect, Route, Switch } from "react-router-dom";
-import { IonApp, IonRouterOutlet, setupIonicReact } from "@ionic/react";
+import { Redirect, Route } from "react-router-dom";
+import {
+  IonApp,
+  IonRouterOutlet,
+  IonText,
+  setupIonicReact,
+} from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import Home from "./pages/Home";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -49,37 +53,44 @@ const App = () => {
         const authToken = await getAuthToken();
         console.log("Auth Token:", authToken); // Debugging line
         setIsAuthenticated(!!authToken.value);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching auth token:", error);
         setIsAuthenticated(false);
+      } finally {
         setLoading(false);
       }
     };
     checkAuth();
-  }, [setIsAuthenticated]);
+  }, [isAuthenticated]);
 
-  if (loading) return;
+  console.log(isAuthenticated);
+
+  if (loading)
+    return (
+      <IonApp>
+        <IonText>Loading</IonText>
+      </IonApp>
+    );
 
   return (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
-          <Switch>
-            {/* authentication routes */}
-            {isAuthenticated ? (
-              <>
-                <Route exact path="/tabs" component={Tabs} />
-                <Redirect exact from="/tabs/home" to="/tabs" />
-              </>
-            ) : (
-              <>
-                <Route exact path="/login" render={() => <Login />} />
-                <Route path="/register" render={() => <Register />} />
-                <Redirect exact from="/" to="/login" />
-              </>
-            )}
-          </Switch>
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/register" component={Register} />
+          <Route path="/tabs" component={Tabs} />
+          <Route
+            exact
+            path="/"
+            render={() =>
+              isAuthenticated ? (
+                <Redirect to="/tabs" />
+              ) : (
+                <Redirect to="/login" />
+              )
+            }
+          />
+          {isAuthenticated ? <Redirect to="/tabs" /> : <Redirect to="/login" />}
         </IonRouterOutlet>
       </IonReactRouter>
     </IonApp>

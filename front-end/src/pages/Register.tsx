@@ -16,7 +16,8 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import registerSchema, { TRegisterSchema } from "../schemas/registerSchema";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import apiClient from "../services/apiClient";
 
 const Register = () => {
   const {
@@ -40,7 +41,7 @@ const Register = () => {
   const handleRegister = async (data: TRegisterSchema) => {
     signingUp({ message: "Signing up..." });
     try {
-      const res = await axios.post("http://localhost:3000/api/register", data);
+      const res = await apiClient.post("/api/register", data);
       if (res.status === 201) {
         console.log(res.data);
       }

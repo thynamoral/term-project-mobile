@@ -5,7 +5,6 @@ import {
   IonInput,
   IonItem,
   IonList,
-  IonLoading,
   IonPage,
   IonText,
   useIonAlert,
@@ -17,13 +16,15 @@ import { logInOutline } from "ionicons/icons";
 import TechHub from "../assets/TechHub_Logo.svg";
 import { FormEvent, useState } from "react";
 import { setAuthToken } from "../preferences/auth";
-import axios from "axios";
+import apiClient from "../services/apiClient";
+import useAuth from "../hooks/useAuth";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const router = useIonRouter();
   const [presentLogging, dismissLogging] = useIonLoading();
   const [presentAlert] = useIonAlert();
+  const { setIsAuthenticated } = useAuth();
 
   // handle change username
   const handleUsername = (event: CustomEvent) => {
@@ -40,19 +41,21 @@ const Login = () => {
     event.preventDefault();
     presentLogging({ message: "Logging in..." });
     try {
-      const res = await axios.post("http://localhost:3000/api/login", {
+      const res = await apiClient.post("/api/login", {
         username,
         password,
       });
       if (res.status === 200) {
         console.log(res.data);
         setAuthToken(res.data.accessToken);
+        setIsAuthenticated(true);
         setTimeout(() => {
-          router.push("/tabs/home");
+          router.push("/tabs");
         }, 100);
       }
       dismissLogging();
     } catch (error) {
+      setIsAuthenticated(false);
       console.log(error);
       presentAlert({
         header: "Error",
