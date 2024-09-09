@@ -26,13 +26,7 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
-app.use(
-  cors({
-    origin: ["http://localhost:8800"],
-    methods: "GET,HEAD,PUT,POST,DELETE",
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(registerRoute);
 app.use(loginRoute);
