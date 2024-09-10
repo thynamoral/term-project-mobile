@@ -6,6 +6,7 @@ import "dotenv/config";
 import verifyToken from "./middlewares/verifyToken.mjs";
 // configs
 import connectDB from "./configs/connectDB.mjs";
+import corsOptions from "./configs/corsOptions.mjs";
 // routes
 import registerRoute from "./routes/registerRoute.mjs";
 import loginRoute from "./routes/loginRoute.mjs";
@@ -13,14 +14,10 @@ import refreshTokenRoute from "./routes/refreshTokenRoute.mjs";
 
 const app = express();
 
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
 app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
-app.use(
-  cors({
-    origin: ["http://localhost:8800"],
-    optionsSuccessStatus: 200,
-  })
-);
 
 app.use(registerRoute);
 app.use(loginRoute);
