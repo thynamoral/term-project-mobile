@@ -4,8 +4,8 @@ import axios from "axios";
 // https://term-project-mobile.up.railway.app
 
 const apiClient = axios.create({
-  baseURL: "https://term-project-mobile.up.railway.app",
-  // withCredentials: true,
+  baseURL: "http://localhost:3000",
+  withCredentials: true,
 });
 
 export default apiClient;
