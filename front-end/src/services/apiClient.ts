@@ -1,11 +1,9 @@
 import axios from "axios";
 
-// https://term-project-mobile-1ia4.vercel.app
-// https://term-project-mobile.up.railway.app
+// https://term-project-mobile.onrender.com
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:3000",
-  withCredentials: true,
+  baseURL: "https://term-project-mobile.onrender.com",
 });
 
 export default apiClient;
