@@ -6,12 +6,12 @@ import {
   IonToolbar,
 } from "@ionic/react";
 
-const Settings = () => {
+const Search = () => {
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Settings</IonTitle>
+          <IonTitle>Search</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">UI goes here...</IonContent>
@@ -19,4 +19,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default Search;

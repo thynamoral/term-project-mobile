@@ -63,8 +63,6 @@ const App = () => {
     checkAuth();
   }, [isAuthenticated]);
 
-  console.log(isAuthenticated);
-
   if (loading)
     return (
       <IonApp>
