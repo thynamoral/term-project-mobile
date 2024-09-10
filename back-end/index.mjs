@@ -15,7 +15,12 @@ const app = express();
 
 app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:8800"],
+    optionsSuccessStatus: 200,
+  })
+);
 
 app.use(registerRoute);
 app.use(loginRoute);
