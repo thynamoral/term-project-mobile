@@ -1,18 +1,86 @@
+// Profile.tsx
 import {
+  IonActionSheet,
   IonAvatar,
   IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
   IonContent,
+  IonFab,
+  IonFabButton,
+  IonIcon,
   IonItem,
   IonLabel,
+  IonList,
   IonPage,
   IonText,
+  IonToast,
+  useIonRouter,
 } from "@ionic/react";
-// hook
-import useAuthStore from "../hooks/useAuthStore";
+import { ellipsisHorizontal, settingsOutline } from "ionicons/icons";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import useBlogPostUser from "../hooks/useBlogPostUser";
+import useUser from "../hooks/useUser";
+import useBlogPosts from "../hooks/useBlogPost";
 
 const Profile = () => {
-  const { auth } = useAuthStore();
-  console.log(auth?.userId);
+  const [actionSheetState, setActionSheetState] = useState<{
+    isOpen: boolean;
+    postId?: string;
+  }>({ isOpen: false });
+  const [selectedPost, setSelectedPost] = useState<string | null>(null);
+  const { user, loading: userLoading } = useUser();
+  const {
+    blogPosts,
+    loading: postsLoading,
+    refetchBlogPostUser,
+  } = useBlogPostUser(user?._id!);
+  const { deleteBlogPost } = useBlogPosts();
+  const router = useIonRouter();
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  if (userLoading || postsLoading) {
+    return (
+      <IonPage>
+        <IonContent className="ion-padding">
+          <IonText color="medium">Loading...</IonText>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
+  const handleEdit = () => {
+    if (selectedPost) {
+      router.push(`/editPost/${selectedPost}`);
+    }
+    setActionSheetState({ isOpen: false });
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteBlogPost(selectedPost!, user?._id!);
+      setActionSheetState({ isOpen: false });
+
+      await refetchBlogPostUser(); // Refetch the blog posts after deletion
+
+      setToastMessage("Post deleted successfully.");
+      setShowToast(true);
+    } catch (error) {
+      setToastMessage("Failed to delete post.");
+      setShowToast(true);
+      return;
+    }
+  };
+
+  const openActionSheet = (postId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Stop the card click event
+    setSelectedPost(postId);
+    setActionSheetState({ isOpen: true });
+  };
+
   return (
     <IonPage>
       <IonContent className="ion-padding">
@@ -25,15 +93,81 @@ const Profile = () => {
           </IonAvatar>
           <div>
             <IonLabel style={{ fontSize: "24px", fontWeight: "700" }}>
-              {/* {user?.username} */}
-              Test
+              {user?.username}
             </IonLabel>
-            <IonText color="medium">0 Blogs</IonText>
+            <IonText color="medium">{blogPosts.length} Blogs</IonText>
           </div>
+          <Link to="/setting">
+            <IonFab slot="end" vertical="bottom" horizontal="end">
+              <IonFabButton color="light">
+                <IonIcon icon={settingsOutline} />
+              </IonFabButton>
+            </IonFab>
+          </Link>
         </IonItem>
         <IonButton shape="round" color="light">
           Edit Profile
         </IonButton>
+        <IonList>
+          {blogPosts.map((post) => (
+            <IonCard
+              key={post._id}
+              style={{ cursor: "pointer" }}
+              onClick={() => router.push(`/blogPost/${post._id}`)}
+            >
+              <IonButton
+                fill="clear"
+                style={{
+                  position: "absolute",
+                  top: "3px",
+                  right: "3px",
+                  zIndex: 1,
+                }}
+                onClick={(e) => openActionSheet(post._id!, e)}
+              >
+                <IonIcon slot="start" color="dark" icon={ellipsisHorizontal} />
+              </IonButton>
+              <IonCardHeader>
+                <IonLabel
+                  style={{ fontSize: "20px", color: "#000", fontWeight: "600" }}
+                >
+                  {post.title}
+                </IonLabel>
+              </IonCardHeader>
+              <IonCardContent>{post.content.substring(0, 100)}</IonCardContent>
+            </IonCard>
+          ))}
+        </IonList>
+
+        {/* Action Sheet for Edit/Delete */}
+        <IonActionSheet
+          isOpen={actionSheetState.isOpen}
+          onDidDismiss={() => setActionSheetState({ isOpen: false })}
+          buttons={[
+            {
+              text: "Edit",
+              handler: handleEdit,
+            },
+            {
+              text: "Delete",
+              role: "destructive",
+              handler: handleDelete,
+            },
+            {
+              text: "Cancel",
+              role: "cancel",
+            },
+          ]}
+        />
+
+        {/* Toast for feedback */}
+        <IonToast
+          isOpen={showToast}
+          onDidDismiss={() => setShowToast(false)}
+          message={toastMessage}
+          duration={2000}
+          position="top"
+        />
       </IonContent>
     </IonPage>
   );

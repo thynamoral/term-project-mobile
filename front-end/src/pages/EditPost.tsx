@@ -13,13 +13,19 @@ import {
   IonToast,
   IonSelect,
   IonSelectOption,
+  IonButtons,
+  IonIcon,
+  useIonRouter,
 } from "@ionic/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom"; // For accessing blog post ID
 import useAuthStore from "../hooks/useAuthStore";
 import useBlogPosts from "../hooks/useBlogPost";
 import useTopic from "../hooks/useTopic";
+import { chevronBack } from "ionicons/icons";
 
-const NewPost = () => {
+const EditPost = () => {
+  const { id } = useParams<{ id: string }>(); // Get the blog post ID from the URL
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
@@ -27,21 +33,37 @@ const NewPost = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastColor, setToastColor] = useState("toast-success"); // Default to success color
-  // State for selected topic and new topic
   const [selectedTopic, setSelectedTopic] = useState<string | null | undefined>(
     null
   );
   const [newTopic, setNewTopic] = useState<string>("");
-  const [addNewTopic, setAddNewTopic] = useState<boolean>(false); // Toggle for new topic
-  // hooks
+  const [addNewTopic, setAddNewTopic] = useState<boolean>(false);
   const { auth } = useAuthStore();
+  const { currentBlogPost, updateBlogPost, fetchBlogPostById } = useBlogPosts();
   const { topics, addTopic } = useTopic();
-  const { createBlogPost } = useBlogPosts();
+  const router = useIonRouter();
+
+  // Fetch the blog post details by ID
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const post = await fetchBlogPostById(id); // Fetch post by ID
+        setTitle(post.title);
+        setContent(post.content);
+        setPreview(post.image ? `/uploads/${post.image}` : null); // Assuming image URL
+        setSelectedTopic(post.topicIds); // Assuming multiple topics
+      } catch (error) {
+        setToastMessage("Failed to fetch blog post.");
+        setToastColor("toast-error");
+        setShowToast(true);
+      }
+    };
+    fetchPost();
+  }, [id, fetchBlogPostById]);
 
   const handleImageChange = (e: any) => {
     const file = e.target.files[0];
     const validImageTypes = ["image/jpeg", "image/jpg", "image/png"];
-
     if (file && validImageTypes.includes(file.type)) {
       setImage(file);
       setPreview(URL.createObjectURL(file));
@@ -52,15 +74,14 @@ const NewPost = () => {
     }
   };
 
-  const handleUpload = async () => {
-    if (!image || !title || !content) {
-      setToastMessage("Please complete all fields including a valid image.");
+  const handleUpdate = async () => {
+    if (!title || !content) {
+      setToastMessage("Please complete all fields.");
       setToastColor("toast-error");
       setShowToast(true);
       return;
     }
 
-    // Create a new topic if provided
     let topicId = selectedTopic;
     if (newTopic) {
       try {
@@ -73,7 +94,7 @@ const NewPost = () => {
       }
     }
 
-    // Create a new blog post
+    // Create form data for update
     const formData = new FormData();
     formData.append("authorId", auth?.userId!);
     formData.append("title", title);
@@ -81,31 +102,36 @@ const NewPost = () => {
     if (topicId) {
       formData.append("topicIds", topicId);
     }
-    formData.append("image", image);
+    if (image) {
+      formData.append("image", image); // Add new image if uploaded
+    }
 
     try {
-      await createBlogPost(formData);
-      setTitle("");
-      setContent("");
-      setImage(null);
-      setPreview(null);
-      setSelectedTopic(null);
-      setNewTopic("");
-      setAddNewTopic(false);
-      setToastMessage("Blog post created successfully.");
+      await updateBlogPost(id, formData, auth?.userId!); // Call update API with blog post ID
+      setToastMessage("Blog post updated successfully.");
       setToastColor("toast-success");
+      router.push("/profile");
     } catch (err) {
-      setToastMessage("Failed to create blog post.");
+      setToastMessage("Failed to update blog post.");
       setToastColor("toast-error");
     }
     setShowToast(true);
+  };
+
+  const handleBack = () => {
+    router.goBack(); // Custom back button using router
   };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>New Post</IonTitle>
+          <IonButtons slot="start">
+            <IonButton onClick={handleBack}>
+              <IonIcon slot="start" icon={chevronBack}></IonIcon>
+            </IonButton>
+          </IonButtons>
+          <IonTitle>Edit Post</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -143,7 +169,7 @@ const NewPost = () => {
             rows={6}
           ></IonTextarea>
         </IonItem>
-        {/* // Toggle between select topic or add new topic */}
+        {/* Toggle between select topic or add new topic */}
         <IonItem lines="none">
           <IonLabel>Want to add a new topic?</IonLabel>
           <IonButton
@@ -156,7 +182,7 @@ const NewPost = () => {
             {addNewTopic ? "Cancel New Topic" : "Add New Topic"}
           </IonButton>
         </IonItem>
-        {/* // Conditionally render topic selection or new topic input */}
+        {/* Conditionally render topic selection or new topic input */}
         {addNewTopic ? (
           // Input to add a new topic
           <IonItem>
@@ -186,13 +212,13 @@ const NewPost = () => {
             </IonSelect>
           </IonItem>
         )}
-        {/* Upload Button */}
+        {/* Update Button */}
         <IonButton
           expand="block"
           style={{ marginTop: "2rem" }}
-          onClick={handleUpload}
+          onClick={handleUpdate}
         >
-          Upload Post
+          Update Post
         </IonButton>
         {/* Toast Notification for Errors */}
         <IonToast
@@ -208,4 +234,4 @@ const NewPost = () => {
   );
 };
 
-export default NewPost;
+export default EditPost;

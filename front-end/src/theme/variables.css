@@ -1,2 +1,14 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
+
+/* Success toast */
+.toast-success {
+  --background: #28a745; /* Green */
+  --color: #fff; /* White text */
+}
+
+/* Error toast */
+.toast-error {
+  --background: #dc3545; /* Red */
+  --color: #fff; /* White text */
+}

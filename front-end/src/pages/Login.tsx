@@ -19,8 +19,6 @@ import apiClient from "../services/apiClient";
 // hooks
 import useAuth from "../hooks/useAuth";
 import useAuthStore from "../hooks/useAuthStore";
-// preferences
-// import { setAuth } from "../preferences/auth";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -55,7 +53,7 @@ const Login = () => {
         setAuth(res.data);
         setIsAuthenticated(true);
         setTimeout(() => {
-          router.push("/tabs");
+          router.push("/tabs/profile");
         }, 100);
       }
       dismissLogging();

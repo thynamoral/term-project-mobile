@@ -42,6 +42,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Tabs from "./pages/Tabs";
 import useAuthStore from "./hooks/useAuthStore";
+import Setting from "./pages/Setting";
+import BlogPost from "./pages/BlogPost";
+import EditPost from "./pages/EditPost";
 
 setupIonicReact();
 
@@ -53,7 +56,7 @@ const App = () => {
     const checkAuth = async () => {
       try {
         // const auth = await getAuth();
-        console.log("Auth User:", auth); // Debugging line
+        // console.log("Auth User:", auth); // Debugging line
         setIsAuthenticated(!!auth);
       } catch (error) {
         console.error("Error fetching auth token:", error);
@@ -78,6 +81,9 @@ const App = () => {
         <IonRouterOutlet>
           <Route exact path="/login" component={Login} />
           <Route exact path="/register" component={Register} />
+          <Route exact path="/setting" component={Setting} />
+          <Route exact path="/blogPost/:id" component={BlogPost} />
+          <Route exact path="/editPost/:id" component={EditPost} />
           <Route path="/tabs" component={Tabs} />
           <Route
             exact
