@@ -1,3 +1,4 @@
+import { FormEvent, useState } from "react";
 import {
   IonButton,
   IonContent,
@@ -14,10 +15,13 @@ import {
 import { Link } from "react-router-dom";
 import { logInOutline } from "ionicons/icons";
 import TechHub from "../assets/TechHub_Logo.svg";
-import { FormEvent, useState } from "react";
-import { setAuthToken } from "../preferences/auth";
 import apiClient from "../services/apiClient";
+// hooks
 import useAuth from "../hooks/useAuth";
+import useAuthStore from "../hooks/useAuthStore";
+// preferences
+// import { setAuth } from "../preferences/auth";
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +29,7 @@ const Login = () => {
   const [presentLogging, dismissLogging] = useIonLoading();
   const [presentAlert] = useIonAlert();
   const { setIsAuthenticated } = useAuth();
+  const { setAuth } = useAuthStore();
 
   // handle change username
   const handleUsername = (event: CustomEvent) => {
@@ -46,8 +51,8 @@ const Login = () => {
         password,
       });
       if (res.status === 200) {
-        console.log(res.data);
-        setAuthToken(res.data.accessToken);
+        console.log(res.data); // debug line
+        setAuth(res.data);
         setIsAuthenticated(true);
         setTimeout(() => {
           router.push("/tabs");

@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
-import User from "../models/User.mjs";
+import User from "../../models/User.mjs";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "../helpers/jwtHelper.mjs";
+} from "../../helpers/jwtHelper.mjs";
 
 const refreshTokenController = async (req, res) => {
   const { refreshToken } = req.body;

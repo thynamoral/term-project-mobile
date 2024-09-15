@@ -1,6 +1,6 @@
 import { Router } from "express";
-import refreshTokenController from "../controllers/refreshTokenController.mjs";
-import verifyToken from "../middlewares/verifyToken.mjs";
+import refreshTokenController from "../../controllers/auth/refreshTokenController.mjs";
+import verifyToken from "../../middlewares/verifyToken.mjs";
 
 const refreshTokenRoute = Router();
 

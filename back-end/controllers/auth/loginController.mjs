@@ -1,9 +1,9 @@
-import User from "../models/User.mjs";
-import decryptPassword from "../helpers/decryptPassword.mjs";
+import User from "../../models/User.mjs";
+import decryptPassword from "../../helpers/decryptPassword.mjs";
 import {
   generateAccessToken,
   generateRefreshToken,
-} from "../helpers/jwtHelper.mjs";
+} from "../../helpers/jwtHelper.mjs";
 
 const loginController = async (req, res) => {
   const { username, password } = req.body;
@@ -40,7 +40,12 @@ const loginController = async (req, res) => {
     // Login successful
     res
       .status(200)
-      .json({ message: "Login successful!", accessToken, refreshToken });
+      .json({
+        message: "Login successful!",
+        accessToken,
+        refreshToken,
+        userId: foundUser._id,
+      });
     return;
   } catch (error) {
     console.log(error);

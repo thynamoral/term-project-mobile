@@ -1,5 +1,5 @@
-import User from "../models/User.mjs";
-import encryptPassword from "../helpers/encryptPassword.mjs";
+import User from "../../models/User.mjs";
+import encryptPassword from "../../helpers/encryptPassword.mjs";
 
 const registerController = async (req, res) => {
   const { username, email, password } = req.body;

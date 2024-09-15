@@ -36,23 +36,25 @@ import "@ionic/react/css/display.css";
 
 /* Theme variables */
 import "./theme/variables.css";
-import { getAuthToken } from "./preferences/auth";
+// import { getAuth } from "./preferences/auth";
 import useAuth from "./hooks/useAuth";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Tabs from "./pages/Tabs";
+import useAuthStore from "./hooks/useAuthStore";
 
 setupIonicReact();
 
 const App = () => {
   const { isAuthenticated, setIsAuthenticated } = useAuth();
+  const { auth } = useAuthStore();
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const authToken = await getAuthToken();
-        console.log("Auth Token:", authToken); // Debugging line
-        setIsAuthenticated(!!authToken.value);
+        // const auth = await getAuth();
+        console.log("Auth User:", auth); // Debugging line
+        setIsAuthenticated(!!auth);
       } catch (error) {
         console.error("Error fetching auth token:", error);
         setIsAuthenticated(false);

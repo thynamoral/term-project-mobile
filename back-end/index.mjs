@@ -8,9 +8,10 @@ import verifyToken from "./middlewares/verifyToken.mjs";
 import connectDB from "./configs/connectDB.mjs";
 import corsOptions from "./configs/corsOptions.mjs";
 // routes
-import registerRoute from "./routes/registerRoute.mjs";
-import loginRoute from "./routes/loginRoute.mjs";
-import refreshTokenRoute from "./routes/refreshTokenRoute.mjs";
+import registerRoute from "./routes/auth/registerRoute.mjs";
+import loginRoute from "./routes/auth/loginRoute.mjs";
+import refreshTokenRoute from "./routes/auth/refreshTokenRoute.mjs";
+import userRoute from "./routes/user/index.mjs";
 
 const app = express();
 
@@ -25,6 +26,9 @@ app.use(refreshTokenRoute);
 app.get("/protected", verifyToken, (req, res) => {
   res.json({ message: "Protected route" });
 });
+
+// user route
+app.use(userRoute);
 
 app.listen(process.env.PORT, async () => {
   console.log(`Server is running on port ${process.env.PORT}`);
