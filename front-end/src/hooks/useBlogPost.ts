@@ -6,9 +6,9 @@ export type BlogPost = {
   title: string;
   content: string;
   author: string; // Assuming the author is a user ID
-  topic?: string[]; // Array of topic IDs
+  topic?: { _id: string; name: string }[]; // Array of topic
   createdAt?: Date;
-  imageUrl?: string; // If storing image URLs
+  image?: string; // If storing image URLs
 };
 
 const useBlogPosts = () => {
@@ -62,15 +62,13 @@ const useBlogPosts = () => {
   };
 
   // Update a blog post
-  const updateBlogPost = async (id: string, post: FormData, userId: string) => {
+  const updateBlogPost = async (id: string, post: FormData) => {
     try {
       setLoading(true);
       const response = await apiClient.put(`/api/blogposts/${id}`, post, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        // @ts-ignore
-        data: { userId },
       });
       setBlogPosts((prevPosts) =>
         prevPosts.map((p) => (p._id === id ? response.data : p))

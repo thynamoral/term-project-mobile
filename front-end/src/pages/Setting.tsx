@@ -30,7 +30,7 @@ const Setting = () => {
             <IonItem
               key={setting.path}
               style={{ cursor: "pointer" }}
-              onClick={() => router.push(`/tabs${setting.path}`)}
+              onClick={() => router.push(`/tabs${setting.path}`, "back")}
             >
               {setting.name}
             </IonItem>
@@ -40,7 +40,7 @@ const Setting = () => {
             style={{ cursor: "pointer" }}
             onClick={() => {
               removeAuth();
-              router.push("/login", "root", "replace");
+              router.push("/login", "back");
             }}
           >
             Sign Out

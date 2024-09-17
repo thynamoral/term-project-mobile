@@ -2,35 +2,12 @@ import BlogPost from "../../models/BlogPost.mjs";
 import User from "../../models/User.mjs";
 import Topic from "../../models/Topic.mjs";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import dotenv from "dotenv";
+import { uploadToS3 } from "../../configs/connectAWS.mjs";
+dotenv.config();
 
-// Set up multer for image upload
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Directory to store uploaded images
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
-  },
-});
-
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const fileTypes = /jpeg|jpg|png/;
-    const extname = fileTypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
-    const mimetype = fileTypes.test(file.mimetype);
-
-    if (extname && mimetype) {
-      return cb(null, true);
-    } else {
-      cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
-    }
-  },
-}).single("image");
+const storage = multer.memoryStorage();
+const upload = multer({ storage }).single("image");
 
 // CREATE a blog post
 export const createBlogPost = async (req, res) => {
@@ -43,12 +20,18 @@ export const createBlogPost = async (req, res) => {
       const author = await User.findById(authorId);
       if (!author) return res.status(404).json({ message: "User not found" });
 
+      let imageUrl = null;
+      if (req.file) {
+        // upload image to S3
+        imageUrl = await uploadToS3(req.file);
+      }
+
       const blogPost = new BlogPost({
         title,
         content,
         author: author._id,
         topic: topicIds,
-        image: req.file ? req.file.filename : null, // Save image if uploaded
+        image: imageUrl, // Save image URL from S3
       });
 
       const savedPost = await blogPost.save();
@@ -111,11 +94,20 @@ export const updateBlogPost = async (req, res) => {
       blogPost.topic = topicIds || blogPost.topic;
 
       if (req.file) {
-        // Delete old image if a new one is uploaded
+        // Delete old image from S3
         if (blogPost.image) {
-          fs.unlinkSync(`uploads/${blogPost.image}`);
+          const oldImageKey = blogPost.image.split("/").pop();
+          const params = {
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: oldImageKey,
+          };
+          s3.send(new DeleteObjectCommand(params), (err) => {
+            if (err) {
+              console.log("Error deleting old image from S3:", err);
+            }
+          });
         }
-        blogPost.image = req.file.filename;
+        blogPost.image = await uploadToS3(req.file); // Save new image URL from S3
       }
 
       const updatedPost = await blogPost.save();
@@ -130,7 +122,7 @@ export const updateBlogPost = async (req, res) => {
 export const deleteBlogPost = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId } = req.body; // Assuming you're using a middleware to get the authenticated user
+    const { userId } = req.body;
 
     // Find the blog post to ensure it belongs to the current user
     const blogPost = await BlogPost.findOne({ _id: id, author: userId }).exec();
@@ -141,9 +133,26 @@ export const deleteBlogPost = async (req, res) => {
         .json({ message: "Blog post not found or not authorized to delete." });
     }
 
-    // Delete image if exists
+    // Delete image from S3 if exists
     if (blogPost.image) {
-      fs.unlinkSync(`uploads/${blogPost.image}`);
+      const imageKey = blogPost.image.split("/").pop();
+      const params = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: imageKey,
+      };
+      s3.send(new DeleteObjectCommand(params), (err) => {
+        if (err) {
+          console.log("Error deleting image from S3:", err);
+        }
+      });
+    }
+
+    // Remove blog post references from related topics
+    if (blogPost.topic) {
+      await Topic.updateMany(
+        { _id: { $in: blogPost.topic } },
+        { $pull: { blogPosts: blogPost._id } }
+      );
     }
 
     await blogPost.deleteOne();

@@ -2,6 +2,7 @@
 import {
   IonActionSheet,
   IonAvatar,
+  IonBadge,
   IonButton,
   IonCard,
   IonCardContent,
@@ -19,7 +20,7 @@ import {
   useIonRouter,
 } from "@ionic/react";
 import { ellipsisHorizontal, settingsOutline } from "ionicons/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useBlogPostUser from "../hooks/useBlogPostUser";
 import useUser from "../hooks/useUser";
@@ -30,6 +31,10 @@ const Profile = () => {
     isOpen: boolean;
     postId?: string;
   }>({ isOpen: false });
+  const router = useIonRouter();
+  const [showToast, setShowToast] = useState(false);
+  const [toastColor, setToastColor] = useState("toast-success"); // Default to success color
+  const [toastMessage, setToastMessage] = useState("");
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const { user, loading: userLoading } = useUser();
   const {
@@ -37,10 +42,7 @@ const Profile = () => {
     loading: postsLoading,
     refetchBlogPostUser,
   } = useBlogPostUser(user?._id!);
-  const { deleteBlogPost } = useBlogPosts();
-  const router = useIonRouter();
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+  const { deleteBlogPost, createBlogPost } = useBlogPosts();
 
   if (userLoading || postsLoading) {
     return (
@@ -66,6 +68,7 @@ const Profile = () => {
 
       await refetchBlogPostUser(); // Refetch the blog posts after deletion
 
+      setToastColor("toast-error");
       setToastMessage("Post deleted successfully.");
       setShowToast(true);
     } catch (error) {
@@ -133,8 +136,21 @@ const Profile = () => {
                 >
                   {post.title}
                 </IonLabel>
+                <img
+                  src={post.image}
+                  style={{ width: "100%", height: "200px" }}
+                />
               </IonCardHeader>
               <IonCardContent>{post.content.substring(0, 100)}</IonCardContent>
+              {post.topic && post.topic.length > 0 ? (
+                <IonItem lines="none">
+                  {post.topic?.map((topic) => (
+                    <IonBadge key={topic._id} color="primary">
+                      {topic.name}
+                    </IonBadge>
+                  ))}
+                </IonItem>
+              ) : null}
             </IonCard>
           ))}
         </IonList>
@@ -167,6 +183,7 @@ const Profile = () => {
           message={toastMessage}
           duration={2000}
           position="top"
+          cssClass={toastColor}
         />
       </IonContent>
     </IonPage>

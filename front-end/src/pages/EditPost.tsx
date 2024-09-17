@@ -38,8 +38,8 @@ const EditPost = () => {
   );
   const [newTopic, setNewTopic] = useState<string>("");
   const [addNewTopic, setAddNewTopic] = useState<boolean>(false);
-  const { auth } = useAuthStore();
-  const { currentBlogPost, updateBlogPost, fetchBlogPostById } = useBlogPosts();
+  // const { auth } = useAuthStore();
+  const { updateBlogPost, fetchBlogPostById } = useBlogPosts();
   const { topics, addTopic } = useTopic();
   const router = useIonRouter();
 
@@ -59,7 +59,7 @@ const EditPost = () => {
       }
     };
     fetchPost();
-  }, [id, fetchBlogPostById]);
+  }, []);
 
   const handleImageChange = (e: any) => {
     const file = e.target.files[0];
@@ -96,7 +96,7 @@ const EditPost = () => {
 
     // Create form data for update
     const formData = new FormData();
-    formData.append("authorId", auth?.userId!);
+    // formData.append("authorId", auth?.userId!);
     formData.append("title", title);
     formData.append("content", content);
     if (topicId) {
@@ -107,15 +107,15 @@ const EditPost = () => {
     }
 
     try {
-      await updateBlogPost(id, formData, auth?.userId!); // Call update API with blog post ID
+      await updateBlogPost(id, formData); // Call update API with blog post ID
       setToastMessage("Blog post updated successfully.");
       setToastColor("toast-success");
-      router.push("/profile");
     } catch (err) {
       setToastMessage("Failed to update blog post.");
       setToastColor("toast-error");
     }
     setShowToast(true);
+    router.push(`/tabs/profile`);
   };
 
   const handleBack = () => {

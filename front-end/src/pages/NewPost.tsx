@@ -13,6 +13,7 @@ import {
   IonToast,
   IonSelect,
   IonSelectOption,
+  useIonRouter,
 } from "@ionic/react";
 import { useState } from "react";
 import useAuthStore from "../hooks/useAuthStore";
@@ -27,6 +28,7 @@ const NewPost = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastColor, setToastColor] = useState("toast-success"); // Default to success color
+  const router = useIonRouter();
   // State for selected topic and new topic
   const [selectedTopic, setSelectedTopic] = useState<string | null | undefined>(
     null
@@ -99,6 +101,7 @@ const NewPost = () => {
       setToastColor("toast-error");
     }
     setShowToast(true);
+    router.push(`/tabs/profile`);
   };
 
   return (

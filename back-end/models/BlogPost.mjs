@@ -20,6 +20,9 @@ const blogPostSchema = new mongoose.Schema({
       ref: "Topic",
     },
   ],
+  image: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
