@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import apiClient from "../services/apiClient";
 
 export type BlogPost = {
   _id?: string;
   title: string;
   content: string;
-  author: string; // Assuming the author is a user ID
+  author: { _id: string; username: string };
   topic?: { _id: string; name: string }[]; // Array of topic
   createdAt?: Date;
   image?: string; // If storing image URLs
@@ -92,6 +92,10 @@ const useBlogPosts = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchBlogPosts();
+  }, []);
 
   return {
     blogPosts,

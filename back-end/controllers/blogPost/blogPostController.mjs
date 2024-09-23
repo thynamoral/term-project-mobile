@@ -3,7 +3,7 @@ import User from "../../models/User.mjs";
 import Topic from "../../models/Topic.mjs";
 import multer from "multer";
 import dotenv from "dotenv";
-import { uploadToS3 } from "../../configs/connectAWS.mjs";
+import { uploadToS3, deleteFromS3 } from "../../configs/connectAWS.mjs";
 dotenv.config();
 
 const storage = multer.memoryStorage();
@@ -93,21 +93,15 @@ export const updateBlogPost = async (req, res) => {
       blogPost.content = content || blogPost.content;
       blogPost.topic = topicIds || blogPost.topic;
 
+      // Handle image update if a new image is uploaded
       if (req.file) {
-        // Delete old image from S3
         if (blogPost.image) {
-          const oldImageKey = blogPost.image.split("/").pop();
-          const params = {
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: oldImageKey,
-          };
-          s3.send(new DeleteObjectCommand(params), (err) => {
-            if (err) {
-              console.log("Error deleting old image from S3:", err);
-            }
-          });
+          const oldImageKey = blogPost.image.split("/").pop(); // Extract the old image key from the URL
+          blogPost.image = await updateToS3(oldImageKey, req.file); // Update image using the updateToS3 function
+        } else {
+          // If no previous image, just upload the new one
+          blogPost.image = await uploadToS3(req.file);
         }
-        blogPost.image = await uploadToS3(req.file); // Save new image URL from S3
       }
 
       const updatedPost = await blogPost.save();
@@ -136,15 +130,11 @@ export const deleteBlogPost = async (req, res) => {
     // Delete image from S3 if exists
     if (blogPost.image) {
       const imageKey = blogPost.image.split("/").pop();
-      const params = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: imageKey,
-      };
-      s3.send(new DeleteObjectCommand(params), (err) => {
-        if (err) {
-          console.log("Error deleting image from S3:", err);
-        }
-      });
+      try {
+        await deleteFromS3(imageKey); // Use the deleteFromS3 function
+      } catch (err) {
+        console.error("Error deleting image from S3:", err);
+      }
     }
 
     // Remove blog post references from related topics

@@ -29,16 +29,6 @@ const Login = () => {
   const { setIsAuthenticated } = useAuth();
   const { setAuth } = useAuthStore();
 
-  // handle change username
-  const handleUsername = (event: CustomEvent) => {
-    setUsername((event as CustomEvent).detail.value);
-  };
-
-  // handle change password
-  const handlePassword = (event: CustomEvent) => {
-    setPassword((event as CustomEvent).detail.value);
-  };
-
   // handle login
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -110,7 +100,7 @@ const Login = () => {
                 placeholder="Enter your username"
                 className="ion-margin-top"
                 value={username}
-                onIonInput={handleUsername}
+                onIonInput={(e: any) => setUsername(e.target.value)}
                 required
               />
             </IonItem>
@@ -122,7 +112,7 @@ const Login = () => {
                 placeholder="Enter your password"
                 className="ion-margin-top"
                 value={password}
-                onIonInput={handlePassword}
+                onIonInput={(e: any) => setPassword(e.target.value)}
                 required
               />
             </IonItem>

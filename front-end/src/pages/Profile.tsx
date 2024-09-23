@@ -111,6 +111,7 @@ const Profile = () => {
         <IonButton shape="round" color="light">
           Edit Profile
         </IonButton>
+        {/* Render blog posts */}
         <IonList>
           {blogPosts.map((post) => (
             <IonCard

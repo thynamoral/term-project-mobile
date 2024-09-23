@@ -14,6 +14,7 @@ import refreshTokenRoute from "./routes/auth/refreshTokenRoute.mjs";
 import userRoute from "./routes/user/index.mjs";
 import blogPostRouter from "./routes/blogPost/index.mjs";
 import topicRoute from "./routes/topic/index.mjs";
+import searchRouter from "./routes/search/index.mjs";
 
 const app = express();
 
@@ -37,6 +38,9 @@ app.use(blogPostRouter);
 
 // topic route
 app.use(topicRoute);
+
+// search route
+app.use(searchRouter);
 
 app.listen(process.env.PORT, async () => {
   console.log(`Server is running on port ${process.env.PORT}`);

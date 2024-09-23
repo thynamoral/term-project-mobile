@@ -29,4 +29,7 @@ const blogPostSchema = new mongoose.Schema({
   },
 });
 
+// Create index for title and content fields
+blogPostSchema.index({ title: "text", content: "text" });
+
 export default mongoose.model("BlogPost", blogPostSchema);

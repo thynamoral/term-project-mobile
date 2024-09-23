@@ -16,6 +16,7 @@ import {
   IonButtons,
   IonIcon,
   useIonRouter,
+  IonText,
 } from "@ionic/react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"; // For accessing blog post ID
@@ -39,7 +40,7 @@ const EditPost = () => {
   const [newTopic, setNewTopic] = useState<string>("");
   const [addNewTopic, setAddNewTopic] = useState<boolean>(false);
   // const { auth } = useAuthStore();
-  const { updateBlogPost, fetchBlogPostById } = useBlogPosts();
+  const { loading, updateBlogPost, fetchBlogPostById } = useBlogPosts();
   const { topics, addTopic } = useTopic();
   const router = useIonRouter();
 
@@ -48,10 +49,11 @@ const EditPost = () => {
     const fetchPost = async () => {
       try {
         const post = await fetchBlogPostById(id); // Fetch post by ID
+        console.log(post);
         setTitle(post.title);
         setContent(post.content);
-        setPreview(post.image ? `/uploads/${post.image}` : null); // Assuming image URL
-        setSelectedTopic(post.topicIds); // Assuming multiple topics
+        setPreview(post.image); // Assuming image URL
+        setSelectedTopic(post.topic[0]._id); // Assuming multiple topics
       } catch (error) {
         setToastMessage("Failed to fetch blog post.");
         setToastColor("toast-error");
@@ -121,6 +123,18 @@ const EditPost = () => {
   const handleBack = () => {
     router.goBack(); // Custom back button using router
   };
+
+  console.log(selectedTopic);
+
+  if (loading) {
+    return (
+      <IonPage>
+        <IonContent className="ion-padding">
+          <IonText color="medium">Loading...</IonText>
+        </IonContent>
+      </IonPage>
+    );
+  }
 
   return (
     <IonPage>

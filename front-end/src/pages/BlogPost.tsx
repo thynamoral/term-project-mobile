@@ -62,9 +62,17 @@ const BlogPost = () => {
             </IonButton>
           </IonButtons>
         </IonToolbar>
-        <h2 style={{ fontSize: "34px", fontWeight: "600" }}>
+        <h2 style={{ fontSize: "28px", fontWeight: "600", margin: 0 }}>
           {currentBlogPost.title}
         </h2>
+        <IonText color="primary" style={{ fontWeight: 500 }}>
+          @{currentBlogPost.author.username}
+        </IonText>
+        <img
+          src={currentBlogPost.image}
+          alt="Blog post image"
+          style={{ marginTop: "10px" }}
+        />
         <p>{currentBlogPost.content}</p>
       </IonContent>
     </IonPage>
