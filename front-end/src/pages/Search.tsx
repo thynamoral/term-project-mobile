@@ -96,6 +96,7 @@ const Search: React.FC = () => {
             marginTop: "5px",
             marginBottom: "5px",
           }}
+          clearInput
         >
           <IonIcon
             slot="start"
