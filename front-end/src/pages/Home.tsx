@@ -51,7 +51,7 @@ const Home = () => {
                 </IonText>
                 <img
                   src={post.image}
-                  style={{ width: "100%", height: "200px" }}
+                  style={{ width: "100%", height: "auto", objectFit: "cover" }}
                 />
               </IonCardHeader>
               <IonCardContent>{post.content.substring(0, 100)}</IonCardContent>

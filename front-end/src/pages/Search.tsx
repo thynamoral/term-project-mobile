@@ -16,14 +16,15 @@ import {
 } from "@ionic/react";
 import { searchOutline } from "ionicons/icons";
 import { useEffect, useState } from "react";
-import useTopic from "../hooks/useTopic";
 import useSearchBlog from "../hooks/useSearchBlog";
+import useTopic from "../hooks/useTopic";
 
 const Search: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState(""); // State for search input
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null); // State for selected topic
-  const [initLoad, setInitLoad] = useState(true); // State for initial load
-  const { topics } = useTopic(); // Fetch topics using custom hook
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [initLoad, setInitLoad] = useState(true);
+  const { topics } = useTopic();
   const {
     blogPosts,
     loading: searchLoading,
@@ -31,24 +32,44 @@ const Search: React.FC = () => {
   } = useSearchBlog();
   const router = useIonRouter();
 
-  console.log(blogPosts);
-
   const handleSearchByTopic = async (topic: any) => {
     setSelectedTopic(topic._id);
     updateSearchTerm(topic.name.toLowerCase());
-    setInitLoad(false);
   };
 
   useEffect(() => {
-    if (!searchTerm) {
+    if (searchInput !== "") {
+      setSearchTerm(searchInput);
+    } else {
+      // If search input is cleared, reset the search term
       updateSearchTerm("");
       setSelectedTopic(null);
-      setInitLoad(true);
-    } else {
+    }
+  }, [searchInput]);
+
+  useEffect(() => {
+    // Update search term and reset selected topic when the search term changes
+    if (searchTerm) {
       updateSearchTerm(searchTerm);
+    } else {
+      updateSearchTerm("");
       setSelectedTopic(null);
     }
   }, [searchTerm]);
+
+  useEffect(() => {
+    if (initLoad && blogPosts.length > 0) {
+      setInitLoad(false); // Set initLoad to false after first data load
+    }
+  }, [blogPosts]);
+
+  useEffect(() => {
+    if (selectedTopic) {
+      setSearchInput(
+        topics.find((topic) => topic._id === selectedTopic)?.name!
+      );
+    }
+  }, [selectedTopic]);
 
   return (
     <IonPage>
@@ -63,8 +84,8 @@ const Search: React.FC = () => {
         </IonText>
         <IonInput
           placeholder="Search..."
-          value={searchTerm}
-          onIonInput={(e: any) => setSearchTerm(e.target.value)}
+          value={searchInput}
+          onIonInput={(e: any) => setSearchInput(e.target.value)}
           style={{
             padding: "8px",
             borderRadius: "8px",
@@ -130,7 +151,11 @@ const Search: React.FC = () => {
                     </IonText>
                     <img
                       src={post.image}
-                      style={{ width: "100%", height: "200px" }}
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        objectFit: "cover",
+                      }}
                     />
                   </IonCardHeader>
                   <IonCardContent>
