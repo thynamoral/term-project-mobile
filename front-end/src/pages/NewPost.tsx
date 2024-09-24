@@ -19,6 +19,7 @@ import { useState } from "react";
 import useAuthStore from "../hooks/useAuthStore";
 import useBlogPosts from "../hooks/useBlogPost";
 import useTopic from "../hooks/useTopic";
+import { useHistory } from "react-router";
 
 const NewPost = () => {
   const [title, setTitle] = useState("");
@@ -29,6 +30,7 @@ const NewPost = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [toastColor, setToastColor] = useState("toast-success"); // Default to success color
   const router = useIonRouter();
+  const history = useHistory();
   // State for selected topic and new topic
   const [selectedTopic, setSelectedTopic] = useState<string | null | undefined>(
     null
@@ -38,7 +40,7 @@ const NewPost = () => {
   // hooks
   const { auth } = useAuthStore();
   const { topics, addTopic } = useTopic();
-  const { createBlogPost } = useBlogPosts();
+  const { blogPostUser, createBlogPost } = useBlogPosts();
 
   const handleImageChange = (e: any) => {
     const file = e.target.files[0];
@@ -101,7 +103,7 @@ const NewPost = () => {
       setToastColor("toast-error");
     }
     setShowToast(true);
-    router.push(`/tabs/profile`);
+    router.push("/tabs/profile", "root", "push");
   };
 
   return (

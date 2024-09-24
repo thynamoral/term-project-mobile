@@ -3,7 +3,11 @@ import User from "../../models/User.mjs";
 import Topic from "../../models/Topic.mjs";
 import multer from "multer";
 import dotenv from "dotenv";
-import { uploadToS3, deleteFromS3 } from "../../configs/connectAWS.mjs";
+import {
+  uploadToS3,
+  deleteFromS3,
+  updateToS3,
+} from "../../configs/connectAWS.mjs";
 dotenv.config();
 
 const storage = multer.memoryStorage();

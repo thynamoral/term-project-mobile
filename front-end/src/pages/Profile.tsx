@@ -1,4 +1,3 @@
-// Profile.tsx
 import {
   IonActionSheet,
   IonAvatar,
@@ -22,9 +21,8 @@ import {
 import { ellipsisHorizontal, settingsOutline } from "ionicons/icons";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import useBlogPostUser from "../hooks/useBlogPostUser";
+import useBlogPosts, { BlogPost } from "../hooks/useBlogPost";
 import useUser from "../hooks/useUser";
-import useBlogPosts from "../hooks/useBlogPost";
 
 const Profile = () => {
   const [actionSheetState, setActionSheetState] = useState<{
@@ -32,27 +30,19 @@ const Profile = () => {
     postId?: string;
   }>({ isOpen: false });
   const router = useIonRouter();
+  const [localBlogPosts, setLocalBlogPosts] = useState<BlogPost[]>([]);
   const [showToast, setShowToast] = useState(false);
   const [toastColor, setToastColor] = useState("toast-success"); // Default to success color
   const [toastMessage, setToastMessage] = useState("");
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const { user, loading: userLoading } = useUser();
   const {
-    blogPosts,
+    blogPostUser: blogPosts,
     loading: postsLoading,
-    refetchBlogPostUser,
-  } = useBlogPostUser(user?._id!);
-  const { deleteBlogPost, createBlogPost } = useBlogPosts();
-
-  if (userLoading || postsLoading) {
-    return (
-      <IonPage>
-        <IonContent className="ion-padding">
-          <IonText color="medium">Loading...</IonText>
-        </IonContent>
-      </IonPage>
-    );
-  }
+    createBlogPost,
+    updateBlogPost,
+    deleteBlogPost,
+  } = useBlogPosts();
 
   const handleEdit = () => {
     if (selectedPost) {
@@ -65,9 +55,6 @@ const Profile = () => {
     try {
       await deleteBlogPost(selectedPost!, user?._id!);
       setActionSheetState({ isOpen: false });
-
-      await refetchBlogPostUser(); // Refetch the blog posts after deletion
-
       setToastColor("toast-error");
       setToastMessage("Post deleted successfully.");
       setShowToast(true);
@@ -84,6 +71,20 @@ const Profile = () => {
     setActionSheetState({ isOpen: true });
   };
 
+  useEffect(() => {
+    setLocalBlogPosts(blogPosts);
+  }, [blogPosts, createBlogPost, updateBlogPost]);
+
+  if (userLoading || postsLoading) {
+    return (
+      <IonPage>
+        <IonContent className="ion-padding">
+          <IonText color="medium">Loading...</IonText>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
   return (
     <IonPage>
       <IonContent className="ion-padding">
@@ -98,7 +99,7 @@ const Profile = () => {
             <IonLabel style={{ fontSize: "24px", fontWeight: "700" }}>
               {user?.username}
             </IonLabel>
-            <IonText color="medium">{blogPosts.length} Blogs</IonText>
+            <IonText color="medium">{localBlogPosts.length} Blogs</IonText>
           </div>
           <Link to="/setting">
             <IonFab slot="end" vertical="bottom" horizontal="end">
@@ -113,7 +114,7 @@ const Profile = () => {
         </IonButton>
         {/* Render blog posts */}
         <IonList>
-          {blogPosts.map((post) => (
+          {localBlogPosts.map((post) => (
             <IonCard
               key={post._id}
               style={{ cursor: "pointer" }}

@@ -1,21 +1,24 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import apiClient from "../services/apiClient";
+import useAuthStore from "./useAuthStore";
 
 export type BlogPost = {
   _id?: string;
   title: string;
   content: string;
   author: { _id: string; username: string };
-  topic?: { _id: string; name: string }[]; // Array of topic
+  topic?: { _id: string; name: string }[];
   createdAt?: Date;
-  image?: string; // If storing image URLs
+  image?: string;
 };
 
 const useBlogPosts = () => {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [blogPostUser, setBlogPostUser] = useState<BlogPost[]>([]);
   const [currentBlogPost, setCurrentBlogPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { auth } = useAuthStore();
 
   // Fetch all blog posts
   const fetchBlogPosts = async () => {
@@ -44,16 +47,32 @@ const useBlogPosts = () => {
     }
   };
 
+  const fetchBlogPostByUserId = useCallback(async () => {
+    try {
+      setLoading(true);
+      if (auth?.userId) {
+        const response = await apiClient.get<BlogPost[]>(
+          `/api/blogposts/user/${auth?.userId}`
+        );
+        setBlogPostUser(response.data);
+        setLoading(false);
+      }
+    } catch (err) {
+      setError("Failed to fetch blog posts");
+      setLoading(false);
+    }
+  }, [auth?.userId]);
+
   // Create a new blog post
   const createBlogPost = async (post: FormData) => {
     try {
       setLoading(true);
-      const response = await apiClient.post("/api/blogposts", post, {
+      const res = await apiClient.post<BlogPost>("/api/blogposts", post, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      setBlogPosts((prevPosts) => [...prevPosts, response.data]);
+      setBlogPostUser((prevPosts) => [...prevPosts, res.data]);
       setLoading(false);
     } catch (err) {
       setError("Failed to create blog post");
@@ -65,13 +84,14 @@ const useBlogPosts = () => {
   const updateBlogPost = async (id: string, post: FormData) => {
     try {
       setLoading(true);
-      const response = await apiClient.put(`/api/blogposts/${id}`, post, {
+      const res = await apiClient.put<BlogPost>(`/api/blogposts/${id}`, post, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      setBlogPosts((prevPosts) =>
-        prevPosts.map((p) => (p._id === id ? response.data : p))
+      console.log(res.data);
+      setBlogPostUser((prevPosts) =>
+        prevPosts.map((p) => (p._id === id ? res.data : p))
       );
       setLoading(false);
     } catch (err) {
@@ -84,8 +104,10 @@ const useBlogPosts = () => {
   const deleteBlogPost = async (id: string, userId: string) => {
     try {
       setLoading(true);
-      await apiClient.delete(`/api/blogposts/${id}`, { data: { userId } });
-      setBlogPosts((prevPosts) => prevPosts.filter((p) => p._id !== id));
+      await apiClient.delete(`/api/blogposts/${id}`, {
+        data: { userId },
+      });
+      setBlogPostUser((prevPosts) => prevPosts.filter((p) => p._id !== id));
       setLoading(false);
     } catch (err) {
       setError("Failed to delete blog post");
@@ -97,13 +119,19 @@ const useBlogPosts = () => {
     fetchBlogPosts();
   }, []);
 
+  useEffect(() => {
+    fetchBlogPostByUserId();
+  }, [auth?.userId]);
+
   return {
     blogPosts,
+    blogPostUser,
     currentBlogPost,
     loading,
     error,
     fetchBlogPosts,
     fetchBlogPostById,
+    fetchBlogPostByUserId,
     createBlogPost,
     updateBlogPost,
     deleteBlogPost,

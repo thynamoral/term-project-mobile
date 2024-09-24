@@ -19,14 +19,14 @@ import {
   IonText,
 } from "@ionic/react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; // For accessing blog post ID
-import useAuthStore from "../hooks/useAuthStore";
+import { useParams } from "react-router-dom";
 import useBlogPosts from "../hooks/useBlogPost";
 import useTopic from "../hooks/useTopic";
 import { chevronBack } from "ionicons/icons";
+import useUser from "../hooks/useUser";
 
 const EditPost = () => {
-  const { id } = useParams<{ id: string }>(); // Get the blog post ID from the URL
+  const { id } = useParams<{ id: string }>();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
@@ -39,7 +39,6 @@ const EditPost = () => {
   );
   const [newTopic, setNewTopic] = useState<string>("");
   const [addNewTopic, setAddNewTopic] = useState<boolean>(false);
-  // const { auth } = useAuthStore();
   const { loading, updateBlogPost, fetchBlogPostById } = useBlogPosts();
   const { topics, addTopic } = useTopic();
   const router = useIonRouter();
@@ -49,7 +48,6 @@ const EditPost = () => {
     const fetchPost = async () => {
       try {
         const post = await fetchBlogPostById(id); // Fetch post by ID
-        console.log(post);
         setTitle(post.title);
         setContent(post.content);
         setPreview(post.image); // Assuming image URL
@@ -98,7 +96,6 @@ const EditPost = () => {
 
     // Create form data for update
     const formData = new FormData();
-    // formData.append("authorId", auth?.userId!);
     formData.append("title", title);
     formData.append("content", content);
     if (topicId) {
@@ -109,7 +106,7 @@ const EditPost = () => {
     }
 
     try {
-      await updateBlogPost(id, formData); // Call update API with blog post ID
+      await updateBlogPost(id, formData);
       setToastMessage("Blog post updated successfully.");
       setToastColor("toast-success");
     } catch (err) {
@@ -117,14 +114,12 @@ const EditPost = () => {
       setToastColor("toast-error");
     }
     setShowToast(true);
-    router.push(`/tabs/profile`);
+    router.push("/tabs/profile", "back", "push");
   };
 
   const handleBack = () => {
     router.goBack(); // Custom back button using router
   };
-
-  console.log(selectedTopic);
 
   if (loading) {
     return (
