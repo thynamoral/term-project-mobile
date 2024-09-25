@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import useSWR, { mutate } from "swr";
 import apiClient from "../services/apiClient";
 import useAuthStore from "./useAuthStore";
 
@@ -12,126 +12,123 @@ export type BlogPost = {
   image?: string;
 };
 
+const fetcher = (url: string) => apiClient.get(url).then((res) => res.data);
+
 const useBlogPosts = () => {
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-  const [blogPostUser, setBlogPostUser] = useState<BlogPost[]>([]);
-  const [currentBlogPost, setCurrentBlogPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const { auth } = useAuthStore();
 
   // Fetch all blog posts
-  const fetchBlogPosts = async () => {
-    try {
-      setLoading(true);
-      const response = await apiClient.get("/api/blogposts");
-      setBlogPosts(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError("Failed to fetch blog posts");
-      setLoading(false);
-    }
-  };
+  const {
+    data: blogPosts,
+    error,
+    isLoading: loading,
+  } = useSWR<BlogPost[]>("/api/blogposts", fetcher);
 
-  // Fetch a single blog post by ID
+  // Fetch blog posts by the current user
+  const { data: blogPostUser } = useSWR<BlogPost[]>(
+    auth?.userId ? `/api/blogposts/user/${auth?.userId}` : null,
+    fetcher
+  );
+
+  // fetch a single blog post by ID
   const fetchBlogPostById = async (id: string) => {
     try {
-      setLoading(true);
-      const response = await apiClient.get(`/api/blogposts/${id}`);
-      setCurrentBlogPost(response.data);
-      setLoading(false);
-      return response.data;
+      const blogPost = await apiClient.get<BlogPost>(`/api/blogposts/${id}`);
+      return blogPost.data;
     } catch (err) {
-      setError("Failed to fetch blog post");
-      setLoading(false);
+      throw new Error("Failed to fetch blog post");
     }
   };
-
-  const fetchBlogPostByUserId = useCallback(async () => {
-    try {
-      setLoading(true);
-      if (auth?.userId) {
-        const response = await apiClient.get<BlogPost[]>(
-          `/api/blogposts/user/${auth?.userId}`
-        );
-        setBlogPostUser(response.data);
-        setLoading(false);
-      }
-    } catch (err) {
-      setError("Failed to fetch blog posts");
-      setLoading(false);
-    }
-  }, [auth?.userId]);
 
   // Create a new blog post
   const createBlogPost = async (post: FormData) => {
     try {
-      setLoading(true);
       const res = await apiClient.post<BlogPost>("/api/blogposts", post, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      setBlogPostUser((prevPosts) => [...prevPosts, res.data]);
-      setLoading(false);
+
+      mutate("/api/blogposts", [...(blogPosts || []), res.data], false);
+
+      if (auth?.userId) {
+        mutate(
+          `/api/blogposts/user/${auth.userId}`,
+          [...(blogPostUser || []), res.data], // Add the new post to the user's blogPosts cache
+          false
+        );
+      }
+
+      // Revalidate all blog posts after mutation
+      mutate("/api/blogposts");
+      mutate(`/api/blogposts/user/${auth?.userId}`);
     } catch (err) {
-      setError("Failed to create blog post");
-      setLoading(false);
+      throw new Error("Failed to create blog post");
     }
   };
 
   // Update a blog post
   const updateBlogPost = async (id: string, post: FormData) => {
     try {
-      setLoading(true);
       const res = await apiClient.put<BlogPost>(`/api/blogposts/${id}`, post, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(res.data);
-      setBlogPostUser((prevPosts) =>
-        prevPosts.map((p) => (p._id === id ? res.data : p))
+
+      mutate(
+        `/api/blogposts`,
+        blogPosts?.map((p) => (p._id === id ? res.data : p)), // Update the blog post in the blogPosts cache
+        false
       );
-      setLoading(false);
+
+      if (auth?.userId) {
+        mutate(
+          `/api/blogposts/user/${auth.userId}`,
+          blogPostUser?.map((p) => (p._id === id ? res.data : p)), // Update the blog post in the user's blogPosts cache
+          false
+        );
+      }
+
+      // Revalidate all blog posts after mutation
+      mutate("/api/blogposts");
+      mutate(`/api/blogposts/user/${auth?.userId}`);
     } catch (err) {
-      setError("Failed to update blog post");
-      setLoading(false);
+      throw new Error("Failed to update blog post");
     }
   };
 
   // Delete a blog post
   const deleteBlogPost = async (id: string, userId: string) => {
     try {
-      setLoading(true);
-      await apiClient.delete(`/api/blogposts/${id}`, {
-        data: { userId },
-      });
-      setBlogPostUser((prevPosts) => prevPosts.filter((p) => p._id !== id));
-      setLoading(false);
+      await apiClient.delete(`/api/blogposts/${id}`, { data: { userId } });
+
+      mutate(
+        "/api/blogposts",
+        blogPosts?.filter((p) => p._id !== id), // Remove the blog post from the blogPosts cache
+        false
+      );
+
+      if (auth?.userId) {
+        mutate(
+          `/api/blogposts/user/${auth.userId}`,
+          blogPostUser?.filter((p) => p._id !== id), // Remove the blog post from the user's blogPosts cache
+          false
+        );
+      }
+
+      // Revalidate all blog posts after deletion
+      mutate("/api/blogposts");
+      mutate(`/api/blogposts/user/${auth?.userId}`);
     } catch (err) {
-      setError("Failed to delete blog post");
-      setLoading(false);
+      throw new Error("Failed to delete blog post");
     }
   };
-
-  useEffect(() => {
-    fetchBlogPosts();
-  }, []);
-
-  useEffect(() => {
-    fetchBlogPostByUserId();
-  }, [auth?.userId]);
 
   return {
     blogPosts,
     blogPostUser,
-    currentBlogPost,
     loading,
     error,
-    fetchBlogPosts,
     fetchBlogPostById,
-    fetchBlogPostByUserId,
     createBlogPost,
     updateBlogPost,
     deleteBlogPost,

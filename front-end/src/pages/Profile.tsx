@@ -19,9 +19,9 @@ import {
   useIonRouter,
 } from "@ionic/react";
 import { ellipsisHorizontal, settingsOutline } from "ionicons/icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import useBlogPosts, { BlogPost } from "../hooks/useBlogPost";
+import useBlogPosts from "../hooks/useBlogPost";
 import useUser from "../hooks/useUser";
 
 const Profile = () => {
@@ -30,7 +30,6 @@ const Profile = () => {
     postId?: string;
   }>({ isOpen: false });
   const router = useIonRouter();
-  const [localBlogPosts, setLocalBlogPosts] = useState<BlogPost[]>([]);
   const [showToast, setShowToast] = useState(false);
   const [toastColor, setToastColor] = useState("toast-success"); // Default to success color
   const [toastMessage, setToastMessage] = useState("");
@@ -39,8 +38,6 @@ const Profile = () => {
   const {
     blogPostUser: blogPosts,
     loading: postsLoading,
-    createBlogPost,
-    updateBlogPost,
     deleteBlogPost,
   } = useBlogPosts();
 
@@ -71,10 +68,6 @@ const Profile = () => {
     setActionSheetState({ isOpen: true });
   };
 
-  useEffect(() => {
-    setLocalBlogPosts(blogPosts);
-  }, [blogPosts, createBlogPost, updateBlogPost]);
-
   if (userLoading || postsLoading) {
     return (
       <IonPage>
@@ -99,7 +92,7 @@ const Profile = () => {
             <IonLabel style={{ fontSize: "24px", fontWeight: "700" }}>
               {user?.username}
             </IonLabel>
-            <IonText color="medium">{localBlogPosts.length} Blogs</IonText>
+            <IonText color="medium">{blogPosts?.length} Blogs</IonText>
           </div>
           <Link to="/setting">
             <IonFab slot="end" vertical="bottom" horizontal="end">
@@ -114,7 +107,7 @@ const Profile = () => {
         </IonButton>
         {/* Render blog posts */}
         <IonList>
-          {localBlogPosts.map((post) => (
+          {blogPosts?.map((post) => (
             <IonCard
               key={post._id}
               style={{ cursor: "pointer" }}

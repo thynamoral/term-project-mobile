@@ -12,20 +12,38 @@ import {
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { chevronBack } from "ionicons/icons";
-import useBlogPosts from "../hooks/useBlogPost";
+import useBlogPosts, { BlogPost } from "../hooks/useBlogPost";
 
-const BlogPost = () => {
+const BlogPostPage = () => {
+  const [currentBlogPost, setCurrentBlogPost] = useState<
+    BlogPost | null | undefined
+  >(null);
   const { id } = useParams<{ id: string }>();
   const router = useIonRouter();
-  const { fetchBlogPostById, currentBlogPost, loading, error } = useBlogPosts();
+  const { fetchBlogPostById, loading, error } = useBlogPosts();
+
+  const getCurrentBlogPost = async () => {
+    try {
+      const post = await fetchBlogPostById(id!);
+      return post;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    if (id) {
-      fetchBlogPostById(id); // Fetch the blog post when ID is available
-    }
+    const fetchPost = async () => {
+      try {
+        const post = await getCurrentBlogPost();
+        setCurrentBlogPost(post);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchPost();
   }, []);
 
   const handleBack = () => {
@@ -79,4 +97,4 @@ const BlogPost = () => {
   );
 };
 
-export default BlogPost;
+export default BlogPostPage;

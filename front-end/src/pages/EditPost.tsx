@@ -1,29 +1,28 @@
 import {
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
+  IonImg,
   IonInput,
   IonItem,
   IonLabel,
   IonPage,
-  IonTextarea,
-  IonTitle,
-  IonToolbar,
-  IonImg,
-  IonToast,
   IonSelect,
   IonSelectOption,
-  IonButtons,
-  IonIcon,
-  useIonRouter,
   IonText,
+  IonTextarea,
+  IonTitle,
+  IonToast,
+  IonToolbar,
+  useIonRouter,
 } from "@ionic/react";
+import { chevronBack } from "ionicons/icons";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useBlogPosts from "../hooks/useBlogPost";
 import useTopic from "../hooks/useTopic";
-import { chevronBack } from "ionicons/icons";
-import useUser from "../hooks/useUser";
 
 const EditPost = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,8 +49,8 @@ const EditPost = () => {
         const post = await fetchBlogPostById(id); // Fetch post by ID
         setTitle(post.title);
         setContent(post.content);
-        setPreview(post.image); // Assuming image URL
-        setSelectedTopic(post.topic[0]._id); // Assuming multiple topics
+        setPreview(post.image!); // Assuming image URL
+        setSelectedTopic(post?.topic?.[0]?._id); // Assuming multiple topics
       } catch (error) {
         setToastMessage("Failed to fetch blog post.");
         setToastColor("toast-error");

@@ -43,8 +43,8 @@ import Register from "./pages/Register";
 import Tabs from "./pages/Tabs";
 import useAuthStore from "./hooks/useAuthStore";
 import Setting from "./pages/Setting";
-import BlogPost from "./pages/BlogPost";
 import EditPost from "./pages/EditPost";
+import BlogPostPage from "./pages/BlogPost";
 
 setupIonicReact();
 
@@ -82,7 +82,7 @@ const App = () => {
           <Route exact path="/login" component={Login} />
           <Route exact path="/register" component={Register} />
           <Route exact path="/setting" component={Setting} />
-          <Route exact path="/blogPost/:id" component={BlogPost} />
+          <Route exact path="/blogPost/:id" component={BlogPostPage} />
           <Route exact path="/editPost/:id" component={EditPost} />
           <Route path="/tabs" component={Tabs} />
           <Route
