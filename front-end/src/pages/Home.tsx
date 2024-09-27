@@ -31,7 +31,7 @@ const Home = () => {
       </IonHeader>
       <IonContent className="ion-padding">
         <IonList>
-          {blogPosts.map((post) => (
+          {blogPosts?.map((post) => (
             <IonCard
               key={post._id}
               style={{ cursor: "pointer" }}

@@ -4,7 +4,7 @@ import axios from "axios";
 // http://localhost:3000
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "https://term-project-mobile.onrender.com",
 });
 
 export default apiClient;
