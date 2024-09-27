@@ -133,7 +133,12 @@ const Profile = () => {
                 </IonLabel>
                 <img
                   src={post.image}
-                  style={{ width: "100%", height: "auto", objectFit: "cover" }}
+                  style={{
+                    width: "100%",
+                    maxHeight: "250px",
+                    height: "auto",
+                    objectFit: "cover",
+                  }}
                 />
               </IonCardHeader>
               <IonCardContent>{post.content.substring(0, 100)}</IonCardContent>

@@ -154,6 +154,7 @@ const Search: React.FC = () => {
                       src={post.image}
                       style={{
                         width: "100%",
+                        maxHeight: "250px",
                         height: "auto",
                         objectFit: "cover",
                       }}

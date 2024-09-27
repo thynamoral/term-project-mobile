@@ -174,7 +174,7 @@ const EditPost = () => {
             placeholder="Enter your post content"
             value={content}
             onIonChange={(e) => setContent(e.detail.value!)}
-            rows={6}
+            rows={14}
           ></IonTextarea>
         </IonItem>
         {/* Toggle between select topic or add new topic */}

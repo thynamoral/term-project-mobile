@@ -91,7 +91,7 @@ const BlogPostPage = () => {
           alt="Blog post image"
           style={{ marginTop: "10px" }}
         />
-        <p>{currentBlogPost.content}</p>
+        <p style={{ whiteSpace: "pre-wrap" }}>{currentBlogPost.content}</p>
       </IonContent>
     </IonPage>
   );
