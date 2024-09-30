@@ -9,7 +9,13 @@ import {
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
-import { bookmark, chevronBack, heart } from "ionicons/icons";
+import {
+  bookmark,
+  bookmarkOutline,
+  chevronBack,
+  heart,
+  heartOutline,
+} from "ionicons/icons";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import useBlogPosts, { BlogPost } from "../hooks/useBlogPost";
@@ -24,8 +30,11 @@ const BlogPostPage = () => {
     likedBlogPosts,
     bookmarkedBlogPosts,
     totalLikes,
+    totalBookmarks,
     likeBlogPost,
     unlikeBlogPost,
+    bookmarkBlogPost,
+    unbookmarkBlogPost,
   } = useUserInteractions(id!);
   const router = useIonRouter();
   const { fetchBlogPostById, loading, error } = useBlogPosts();
@@ -64,11 +73,11 @@ const BlogPostPage = () => {
   };
 
   const handleBookmark = async () => {
-    await handleBookmark();
+    await bookmarkBlogPost(id!);
   };
 
   const handleUnbookmark = async () => {
-    await handleUnbookmark();
+    await unbookmarkBlogPost(id!);
   };
 
   if (loading) {
@@ -122,20 +131,33 @@ const BlogPostPage = () => {
           transform: "translateX(-50%)",
           zIndex: 1000,
           padding: 0,
+          paddingLeft: "10px",
+          paddingRight: "10px",
         }}
       >
         <IonButton
           fill="clear"
           onClick={likedBlogPosts ? handleUnlike : handleLike}
         >
-          <IonIcon icon={heart} color={likedBlogPosts ? "danger" : "medium"} />
-          <IonText>{totalLikes}</IonText>
-        </IonButton>
-        <IonButton fill="clear" onClick={handleBookmark}>
           <IonIcon
-            icon={bookmark}
-            color={bookmarkedBlogPosts ? "primary" : "medium"}
+            icon={likedBlogPosts ? heart : heartOutline}
+            color="medium"
           />
+          <IonText color="medium" style={{ marginLeft: "5px" }}>
+            {totalLikes}
+          </IonText>
+        </IonButton>
+        <IonButton
+          fill="clear"
+          onClick={bookmarkedBlogPosts ? handleUnbookmark : handleBookmark}
+        >
+          <IonIcon
+            icon={bookmarkedBlogPosts ? bookmark : bookmarkOutline}
+            color={"medium"}
+          />
+          <IonText color="medium" style={{ marginLeft: "5px" }}>
+            {totalBookmarks}
+          </IonText>
         </IonButton>
       </IonChip>
     </IonPage>

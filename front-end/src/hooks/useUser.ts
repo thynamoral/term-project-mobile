@@ -3,6 +3,11 @@ import User from "../entities/User";
 import apiClient from "../services/apiClient";
 import useAuthStore from "./useAuthStore";
 
+const getUserById = async (userId: string) => {
+  const { data } = await apiClient.get<User>(`api/users/${userId}`);
+  return data;
+};
+
 const useUser = () => {
   const [user, setUser] = useState<User | null | any>(null);
   const [loading, setLoading] = useState(true);

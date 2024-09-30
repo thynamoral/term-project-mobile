@@ -1,10 +1,24 @@
 import BlogPost from "../../models/BlogPost.mjs";
 import User from "../../models/User.mjs";
 
+export const getTotalBookmarks = async (req, res) => {
+  try {
+    const { blogPostId } = req.params;
+    const blogPost = await BlogPost.findById(blogPostId);
+    const totalBookmarks = blogPost.bookmarks.length;
+    res.status(200).json({ totalBookmarks });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 export const bookmarkPost = async (req, res) => {
   try {
     const { blogPostId } = req.params;
-    const userId = req.user.id;
+    const { userId } = req.body;
+
+    if (!userId)
+      return res.status(400).json({ message: "User ID is required" });
 
     const post = await BlogPost.findById(blogPostId);
     const user = await User.findById(userId);
@@ -35,7 +49,13 @@ export const bookmarkPost = async (req, res) => {
 export const unbookmarkPost = async (req, res) => {
   try {
     const { blogPostId } = req.params;
-    const userId = req.user.id;
+    const { userId } = req.query;
+
+    // Validate that both userId and blogPostId are provided
+    if (!userId)
+      return res.status(400).json({ message: "User ID is required" });
+    if (!blogPostId)
+      return res.status(400).json({ message: "Blog Post ID is required" });
 
     const post = await BlogPost.findById(blogPostId);
     const user = await User.findById(userId);

@@ -23,6 +23,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import useBlogPosts from "../hooks/useBlogPost";
 import useUser from "../hooks/useUser";
+import BlogPostCard from "../components/BlogPostCard";
 
 const Profile = () => {
   const [actionSheetState, setActionSheetState] = useState<{
@@ -108,50 +109,7 @@ const Profile = () => {
         {/* Render blog posts */}
         <IonList>
           {blogPosts?.map((post) => (
-            <IonCard
-              key={post._id}
-              style={{ cursor: "pointer" }}
-              onClick={() => router.push(`/tabs/blogPost/${post._id}`)}
-            >
-              <IonButton
-                fill="clear"
-                style={{
-                  position: "absolute",
-                  top: "3px",
-                  right: "3px",
-                  zIndex: 1,
-                }}
-                onClick={(e) => openActionSheet(post._id!, e)}
-              >
-                <IonIcon slot="start" color="dark" icon={ellipsisHorizontal} />
-              </IonButton>
-              <IonCardHeader>
-                <IonLabel
-                  style={{ fontSize: "20px", color: "#000", fontWeight: "600" }}
-                >
-                  {post.title}
-                </IonLabel>
-                <img
-                  src={post.image}
-                  style={{
-                    width: "100%",
-                    maxHeight: "250px",
-                    height: "auto",
-                    objectFit: "cover",
-                  }}
-                />
-              </IonCardHeader>
-              <IonCardContent>{post.content.substring(0, 100)}</IonCardContent>
-              {post.topic && post.topic.length > 0 ? (
-                <IonItem lines="none">
-                  {post.topic?.map((topic) => (
-                    <IonBadge key={topic._id} color="primary">
-                      {topic.name}
-                    </IonBadge>
-                  ))}
-                </IonItem>
-              ) : null}
-            </IonCard>
+            <BlogPostCard key={post._id} post={post} />
           ))}
         </IonList>
 

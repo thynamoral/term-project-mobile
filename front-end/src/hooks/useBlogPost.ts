@@ -8,8 +8,10 @@ export type BlogPost = {
   content: string;
   author: { _id: string; username: string };
   topic?: { _id: string; name: string }[];
-  createdAt?: Date;
   image?: string;
+  likes: { _id: string }[];
+  bookmarks: { _id: string }[];
+  createdAt?: Date;
 };
 
 const fetcher = (url: string) => apiClient.get(url).then((res) => res.data);
@@ -22,6 +24,7 @@ const useBlogPosts = () => {
     data: blogPosts,
     error,
     isLoading: loading,
+    mutate: mutateBlogPosts,
   } = useSWR<BlogPost[]>("/api/blogposts", fetcher);
 
   // Fetch blog posts by the current user
@@ -132,6 +135,7 @@ const useBlogPosts = () => {
     createBlogPost,
     updateBlogPost,
     deleteBlogPost,
+    mutateBlogPosts,
   };
 };
 
