@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import { Redirect, Route } from "react-router-dom";
 import {
   IonApp,
   IonRouterOutlet,
@@ -7,6 +5,8 @@ import {
   setupIonicReact,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
+import { useEffect, useState } from "react";
+import { Redirect, Route } from "react-router-dom";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -17,12 +17,12 @@ import "@ionic/react/css/structure.css";
 import "@ionic/react/css/typography.css";
 
 /* Optional CSS utils that can be commented out */
-import "@ionic/react/css/padding.css";
+import "@ionic/react/css/display.css";
+import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/float-elements.css";
+import "@ionic/react/css/padding.css";
 import "@ionic/react/css/text-alignment.css";
 import "@ionic/react/css/text-transformation.css";
-import "@ionic/react/css/flex-utils.css";
-import "@ionic/react/css/display.css";
 
 /**
  * Ionic Dark Mode
@@ -38,13 +38,11 @@ import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 // import { getAuth } from "./preferences/auth";
 import useAuth from "./hooks/useAuth";
+import useAuthStore from "./hooks/useAuthStore";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Tabs from "./pages/Tabs";
-import useAuthStore from "./hooks/useAuthStore";
 import Setting from "./pages/Setting";
-import EditPost from "./pages/EditPost";
-import BlogPostPage from "./pages/BlogPost";
+import Tabs from "./pages/Tabs";
 
 setupIonicReact();
 
@@ -55,8 +53,6 @@ const App = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // const auth = await getAuth();
-        // console.log("Auth User:", auth); // Debugging line
         setIsAuthenticated(!!auth);
       } catch (error) {
         console.error("Error fetching auth token:", error);
@@ -82,8 +78,6 @@ const App = () => {
           <Route exact path="/login" component={Login} />
           <Route exact path="/register" component={Register} />
           <Route exact path="/setting" component={Setting} />
-          <Route exact path="/blogPost/:id" component={BlogPostPage} />
-          <Route exact path="/editPost/:id" component={EditPost} />
           <Route path="/tabs" component={Tabs} />
           <Route
             exact

@@ -35,7 +35,7 @@ const Home = () => {
             <IonCard
               key={post._id}
               style={{ cursor: "pointer" }}
-              onClick={() => router.push(`/blogPost/${post._id}`)}
+              onClick={() => router.push(`/tabs/blogPost/${post._id}`)}
             >
               <IonCardHeader>
                 <IonLabel

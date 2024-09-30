@@ -43,7 +43,7 @@ const Profile = () => {
 
   const handleEdit = () => {
     if (selectedPost) {
-      router.push(`/editPost/${selectedPost}`);
+      router.push(`/tabs/editPost/${selectedPost}`);
     }
     setActionSheetState({ isOpen: false });
   };
@@ -111,7 +111,7 @@ const Profile = () => {
             <IonCard
               key={post._id}
               style={{ cursor: "pointer" }}
-              onClick={() => router.push(`/blogPost/${post._id}`)}
+              onClick={() => router.push(`/tabs/blogPost/${post._id}`)}
             >
               <IonButton
                 fill="clear"
