@@ -1,27 +1,32 @@
 import {
-  IonAvatar,
-  IonBackButton,
   IonButton,
   IonButtons,
+  IonChip,
   IonContent,
   IonIcon,
-  IonItem,
-  IonLabel,
   IonPage,
   IonText,
   IonToolbar,
   useIonRouter,
 } from "@ionic/react";
+import { bookmark, chevronBack, heart } from "ionicons/icons";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { chevronBack } from "ionicons/icons";
 import useBlogPosts, { BlogPost } from "../hooks/useBlogPost";
+import useUserInteractions from "../hooks/useUserInteractions";
 
 const BlogPostPage = () => {
+  const { id } = useParams<{ id: string }>();
   const [currentBlogPost, setCurrentBlogPost] = useState<
     BlogPost | null | undefined
   >(null);
-  const { id } = useParams<{ id: string }>();
+  const {
+    likedBlogPosts,
+    bookmarkedBlogPosts,
+    totalLikes,
+    likeBlogPost,
+    unlikeBlogPost,
+  } = useUserInteractions(id!);
   const router = useIonRouter();
   const { fetchBlogPostById, loading, error } = useBlogPosts();
 
@@ -48,6 +53,22 @@ const BlogPostPage = () => {
 
   const handleBack = () => {
     router.goBack(); // Custom back button using router
+  };
+
+  const handleLike = async () => {
+    await likeBlogPost(id!);
+  };
+
+  const handleUnlike = async () => {
+    await unlikeBlogPost(id!);
+  };
+
+  const handleBookmark = async () => {
+    await handleBookmark();
+  };
+
+  const handleUnbookmark = async () => {
+    await handleUnbookmark();
   };
 
   if (loading) {
@@ -93,6 +114,30 @@ const BlogPostPage = () => {
         />
         <p style={{ whiteSpace: "pre-wrap" }}>{currentBlogPost.content}</p>
       </IonContent>
+      <IonChip
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 1000,
+          padding: 0,
+        }}
+      >
+        <IonButton
+          fill="clear"
+          onClick={likedBlogPosts ? handleUnlike : handleLike}
+        >
+          <IonIcon icon={heart} color={likedBlogPosts ? "danger" : "medium"} />
+          <IonText>{totalLikes}</IonText>
+        </IonButton>
+        <IonButton fill="clear" onClick={handleBookmark}>
+          <IonIcon
+            icon={bookmark}
+            color={bookmarkedBlogPosts ? "primary" : "medium"}
+          />
+        </IonButton>
+      </IonChip>
     </IonPage>
   );
 };

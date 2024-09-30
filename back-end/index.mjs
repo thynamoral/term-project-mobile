@@ -15,6 +15,9 @@ import userRoute from "./routes/user/index.mjs";
 import blogPostRouter from "./routes/blogPost/index.mjs";
 import topicRoute from "./routes/topic/index.mjs";
 import searchRouter from "./routes/search/index.mjs";
+import likeRouter from "./routes/like/index.mjs";
+import bookmarkRouter from "./routes/bookmark/index.mjs";
+import userInteractionRouter from "./routes/userInteractions/index.mjs";
 
 const app = express();
 
@@ -26,9 +29,6 @@ app.use(bodyParser.json());
 app.use(registerRoute);
 app.use(loginRoute);
 app.use(refreshTokenRoute);
-app.get("/protected", verifyToken, (req, res) => {
-  res.json({ message: "Protected route" });
-});
 
 // user route
 app.use(userRoute);
@@ -41,6 +41,15 @@ app.use(topicRoute);
 
 // search route
 app.use(searchRouter);
+
+// like router
+app.use(likeRouter);
+
+// bookmark router
+app.use(bookmarkRouter);
+
+// user interaction router
+app.use(userInteractionRouter);
 
 app.listen(process.env.PORT, async () => {
   console.log(`Server is running on port ${process.env.PORT}`);
