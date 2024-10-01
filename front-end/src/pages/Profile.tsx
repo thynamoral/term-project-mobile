@@ -1,11 +1,7 @@
 import {
   IonActionSheet,
   IonAvatar,
-  IonBadge,
   IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
   IonContent,
   IonFab,
   IonFabButton,

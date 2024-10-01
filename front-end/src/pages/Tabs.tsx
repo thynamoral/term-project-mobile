@@ -39,8 +39,6 @@ const Tabs = () => {
     }
   }, [location.pathname]);
 
-  console.log(selectedTabs);
-
   return (
     <IonTabs>
       <IonRouterOutlet>

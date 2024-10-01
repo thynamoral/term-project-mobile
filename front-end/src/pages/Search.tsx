@@ -1,8 +1,4 @@
 import {
-  IonBadge,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
   IonChip,
   IonContent,
   IonIcon,
@@ -16,9 +12,9 @@ import {
 } from "@ionic/react";
 import { searchOutline } from "ionicons/icons";
 import { useEffect, useState } from "react";
+import BlogPostCard from "../components/BlogPostCard";
 import useSearchBlog from "../hooks/useSearchBlog";
 import useTopic from "../hooks/useTopic";
-import BlogPostCard from "../components/BlogPostCard";
 
 const Search: React.FC = () => {
   const [searchInput, setSearchInput] = useState("");
