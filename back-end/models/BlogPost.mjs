@@ -35,6 +35,10 @@ const blogPostSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  readCount: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

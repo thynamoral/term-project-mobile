@@ -60,7 +60,8 @@ export const getAllBlogPosts = async (req, res) => {
   try {
     const blogPosts = await BlogPost.find()
       .populate("author")
-      .populate("topic");
+      .populate("topic")
+      .sort({ createdAt: -1 });
     res.status(200).json(blogPosts);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -157,14 +158,58 @@ export const deleteBlogPost = async (req, res) => {
   }
 };
 
-// Controller method to get all blog posts for a specific user
+// GET all blog posts for a specific user
 export const getBlogPostsByUser = async (req, res) => {
   try {
     const { userId } = req.params; // Get userId from route parameters
-    const blogPosts = await BlogPost.find({ author: userId }).populate("topic"); // Fetch posts and populate topic
+    const blogPosts = await BlogPost.find({ author: userId })
+      .populate("topic")
+      .sort({ createdAt: -1 });
     res.json(blogPosts);
   } catch (error) {
     console.error("Error fetching blog posts:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+// GET all blog posts from user's bookmarks
+export const getBookmarkedBlogPosts = async (req, res) => {
+  try {
+    const { userId } = req.params; // Get userId from route parameters
+    // validate userId
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const bookmarkedBlogPosts = await BlogPost.find({ bookmarks: userId })
+      .populate("author")
+      .populate("topic")
+      .sort({ createdAt: -1 });
+    res.json(bookmarkedBlogPosts);
+  } catch (error) {
+    console.error("Error fetching bookmarked blog posts:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// UPDATE the read count of a blog post
+export const updateReadCount = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the blog post to update the read count
+    const blogPost = await BlogPost.findById(id);
+    if (!blogPost) {
+      return res.status(404).json({ message: "Blog post not found" });
+    }
+
+    // Update the read count
+    blogPost.readCount += 1;
+    await blogPost.save();
+
+    res.status(200).json({ message: "Blog post read count updated" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
   }
 };

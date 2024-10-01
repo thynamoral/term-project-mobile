@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { BlogPost } from "./useBlogPost";
 import apiClient from "../services/apiClient";
 
-const useSearchBlog = () => {
+const useSearchBlogPost = () => {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,4 +68,4 @@ const useSearchBlog = () => {
   };
 };
 
-export default useSearchBlog;
+export default useSearchBlogPost;

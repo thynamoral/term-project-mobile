@@ -8,10 +8,14 @@ import {
   useIonRouter,
 } from "@ionic/react";
 import useAuthStore from "../hooks/useAuthStore";
+import useBlogPosts from "../hooks/useBlogPost";
+import useAuth from "../hooks/useAuth";
 
 const Setting = () => {
-  const { removeAuth } = useAuthStore();
+  const { setIsAuthenticated } = useAuth();
+  const { auth, removeAuth } = useAuthStore();
   const router = useIonRouter();
+  const { resetBlogPosts, blogPostUser } = useBlogPosts();
   const settings = [
     { path: "/profile", name: "Profile" },
     { path: "/home", name: "Home" },
@@ -38,9 +42,10 @@ const Setting = () => {
           {/* Sign Out */}
           <IonItem
             style={{ cursor: "pointer" }}
-            onClick={() => {
-              removeAuth();
-              router.push("/login", "back");
+            onClick={async () => {
+              await removeAuth();
+              resetBlogPosts();
+              setIsAuthenticated(false);
             }}
           >
             Sign Out

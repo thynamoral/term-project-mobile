@@ -13,6 +13,7 @@ import {
   bookmark,
   bookmarkOutline,
   chevronBack,
+  eye,
   heart,
   heartOutline,
 } from "ionicons/icons";
@@ -130,9 +131,6 @@ const BlogPostPage = () => {
           left: "50%",
           transform: "translateX(-50%)",
           zIndex: 1000,
-          padding: 0,
-          paddingLeft: "10px",
-          paddingRight: "10px",
         }}
       >
         <IonButton
@@ -159,6 +157,14 @@ const BlogPostPage = () => {
             {totalBookmarks}
           </IonText>
         </IonButton>
+        {/* Read count */}
+        <IonIcon icon={eye} color="medium" />
+        <IonText
+          color="medium"
+          style={{ marginLeft: "5px", paddingRight: "20px" }}
+        >
+          {currentBlogPost.readCount}
+        </IonText>
       </IonChip>
     </IonPage>
   );

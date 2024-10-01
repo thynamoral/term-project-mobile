@@ -2,6 +2,7 @@ import useSWR from "swr";
 import apiClient from "../services/apiClient";
 import useAuthStore from "./useAuthStore";
 import useBlogPosts from "./useBlogPost";
+import useBookmarkedBlogPost from "./useBookmarkedBlogPost";
 
 // Custom fetcher to handle requests with a body
 const fetcher = async (url: string) => {
@@ -11,7 +12,8 @@ const fetcher = async (url: string) => {
 
 const useUserInteractions = (blogPostId: string) => {
   const { auth } = useAuthStore();
-  const { mutateBlogPosts } = useBlogPosts();
+  const { mutateBlogPosts, mutateBlogPostUser } = useBlogPosts();
+  const { mutateBookmarkedBlogPosts } = useBookmarkedBlogPost();
 
   // Fetch user's interaction with the blog post
   const { data, error, mutate } = useSWR(
@@ -63,6 +65,8 @@ const useUserInteractions = (blogPostId: string) => {
           );
           // Mutate the blog post cache
           mutateBlogPosts();
+          mutateBlogPostUser();
+          mutateBookmarkedBlogPosts();
         }
       }
     } catch (error) {
@@ -88,6 +92,8 @@ const useUserInteractions = (blogPostId: string) => {
           );
           // Mutate the blog post cache
           mutateBlogPosts();
+          mutateBlogPostUser();
+          mutateBookmarkedBlogPosts();
         }
       }
     } catch (error) {
@@ -113,6 +119,8 @@ const useUserInteractions = (blogPostId: string) => {
           );
           // Mutate the blog post cache
           mutateBlogPosts();
+          mutateBlogPostUser();
+          mutateBookmarkedBlogPosts();
         }
       }
     } catch (error) {
@@ -138,6 +146,8 @@ const useUserInteractions = (blogPostId: string) => {
           );
           // Mutate the blog post cache
           mutateBlogPosts();
+          mutateBlogPostUser();
+          mutateBookmarkedBlogPosts();
         }
       }
     } catch (error) {

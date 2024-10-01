@@ -13,7 +13,7 @@ import {
 import { searchOutline } from "ionicons/icons";
 import { useEffect, useState } from "react";
 import BlogPostCard from "../components/BlogPostCard";
-import useSearchBlog from "../hooks/useSearchBlog";
+import useSearchBlogPost from "../hooks/useSearchBlogPost";
 import useTopic from "../hooks/useTopic";
 
 const Search: React.FC = () => {
@@ -26,7 +26,7 @@ const Search: React.FC = () => {
     blogPosts,
     loading: searchLoading,
     updateSearchTerm,
-  } = useSearchBlog();
+  } = useSearchBlogPost();
   const router = useIonRouter();
 
   const handleSearchByTopic = async (topic: any) => {

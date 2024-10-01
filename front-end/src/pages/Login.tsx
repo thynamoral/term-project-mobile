@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   IonButton,
   IonContent,
@@ -27,7 +27,7 @@ const Login = () => {
   const [presentLogging, dismissLogging] = useIonLoading();
   const [presentAlert] = useIonAlert();
   const { setIsAuthenticated } = useAuth();
-  const { setAuth } = useAuthStore();
+  const { auth, setAuth } = useAuthStore();
 
   // handle login
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -40,10 +40,12 @@ const Login = () => {
       });
       if (res.status === 200) {
         console.log(res.data); // debug line
-        setAuth(res.data);
+        await setAuth(res.data);
         setIsAuthenticated(true);
         setTimeout(() => {
-          router.push("/tabs/profile");
+          router.push("/tabs/home");
+          setUsername("");
+          setPassword("");
         }, 100);
       }
       dismissLogging();
@@ -58,6 +60,8 @@ const Login = () => {
       dismissLogging();
     }
   };
+
+  console.log(auth);
 
   return (
     <IonPage>

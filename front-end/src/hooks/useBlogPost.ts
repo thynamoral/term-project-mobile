@@ -1,6 +1,7 @@
 import useSWR, { mutate } from "swr";
 import apiClient from "../services/apiClient";
 import useAuthStore from "./useAuthStore";
+import { useEffect } from "react";
 
 export type BlogPost = {
   _id?: string;
@@ -11,13 +12,14 @@ export type BlogPost = {
   image?: string;
   likes: { _id: string }[];
   bookmarks: { _id: string }[];
+  readCount: number;
   createdAt?: Date;
 };
 
 const fetcher = (url: string) => apiClient.get(url).then((res) => res.data);
 
 const useBlogPosts = () => {
-  const { auth } = useAuthStore();
+  const { auth, loading: authLoading } = useAuthStore();
 
   // Fetch all blog posts
   const {
@@ -28,10 +30,22 @@ const useBlogPosts = () => {
   } = useSWR<BlogPost[]>("/api/blogposts", fetcher);
 
   // Fetch blog posts by the current user
-  const { data: blogPostUser } = useSWR<BlogPost[]>(
+  const {
+    data: blogPostUser,
+    error: blogPostUserError,
+    isLoading: blogPostUserLoading,
+    mutate: mutateBlogPostUser,
+  } = useSWR<BlogPost[]>(
     auth?.userId ? `/api/blogposts/user/${auth?.userId}` : null,
     fetcher
   );
+
+  // Effect to refetch user's blog posts when auth.userId changes
+  useEffect(() => {
+    if (auth?.userId) {
+      mutate(`/api/blogposts/user/${auth.userId}`);
+    }
+  }, [auth?.userId]);
 
   // fetch a single blog post by ID
   const fetchBlogPostById = async (id: string) => {
@@ -126,6 +140,23 @@ const useBlogPosts = () => {
     }
   };
 
+  // Update the read count of a blog post
+  const updateReadCount = async (id: string) => {
+    try {
+      await apiClient.put(`/api/blogposts/${id}/readCount`);
+      mutateBlogPosts();
+      mutateBlogPostUser();
+    } catch (err) {
+      throw new Error("Failed to update read count");
+    }
+  };
+
+  // reset states
+  const resetBlogPosts = async () => {
+    if (auth?.userId)
+      await mutate(`/api/blogposts/user/${auth.userId}`, [], false);
+  };
+
   return {
     blogPosts,
     blogPostUser,
@@ -135,7 +166,10 @@ const useBlogPosts = () => {
     createBlogPost,
     updateBlogPost,
     deleteBlogPost,
+    updateReadCount,
     mutateBlogPosts,
+    mutateBlogPostUser,
+    resetBlogPosts,
   };
 };
 

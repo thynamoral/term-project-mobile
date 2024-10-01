@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Preferences } from "@capacitor/preferences";
+import { useIonRouter } from "@ionic/react";
 
 type TAuth = {
   refreshToken: string;
@@ -11,6 +12,7 @@ type TAuth = {
 const useAuthStore = () => {
   const [auth, setAuthState] = useState<TAuth | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useIonRouter();
 
   // Load auth from Preferences when component mounts
   useEffect(() => {
@@ -37,7 +39,19 @@ const useAuthStore = () => {
   const removeAuth = async () => {
     setAuthState(null);
     await Preferences.remove({ key: "auth" });
+    router.push("/login", "back");
   };
+
+  useEffect(() => {
+    const loadAuth = async () => {
+      const { value } = await Preferences.get({ key: "auth" });
+      if (!value) {
+        setAuthState(null);
+      }
+      setLoading(false);
+    };
+    loadAuth();
+  }, [auth]);
 
   return { auth, setAuth, removeAuth, loading };
 };

@@ -10,20 +10,32 @@ import {
   useIonRouter,
 } from "@ionic/react";
 import { formatDate } from "../utils/formateDate";
-import { heart, bookmark } from "ionicons/icons";
-import { BlogPost } from "../hooks/useBlogPost";
+import { heart, bookmark, eye } from "ionicons/icons";
+import useBlogPosts, { BlogPost } from "../hooks/useBlogPost";
 
 const BlogPostCard = ({ post }: { post: BlogPost }) => {
+  const { updateReadCount } = useBlogPosts();
   const router = useIonRouter();
   return (
     <IonCard
       key={post._id}
       style={{ cursor: "pointer" }}
-      onClick={() => router.push(`/tabs/blogPost/${post._id}`)}
+      onClick={async () => {
+        await updateReadCount(post._id!);
+        router.push(`/tabs/blogPost/${post._id}`);
+      }}
     >
       <IonCardHeader>
         <IonLabel
-          style={{ fontSize: "20px", color: "#000", fontWeight: "600" }}
+          style={{
+            fontSize: "20px",
+            color: "#000",
+            fontWeight: "600",
+            maxWidth: "90%",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
         >
           {post.title}
         </IonLabel>
@@ -96,6 +108,23 @@ const BlogPostCard = ({ post }: { post: BlogPost }) => {
           >
             <IonIcon icon={bookmark} color="medium" />
             <span>{post.bookmarks?.length}</span>
+          </IonText>
+        ) : null}
+        {/* Read count */}
+        {post.readCount > 0 ? (
+          <IonText
+            color="medium"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "3px",
+              fontSize: "14px",
+              fontWeight: 600,
+              marginRight: "20px",
+            }}
+          >
+            <IonIcon icon={eye} color="medium" />
+            <span>{post.readCount}</span>
           </IonText>
         ) : null}
       </IonItem>
