@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import {
   IonButton,
   IonContent,
@@ -16,9 +16,9 @@ import { Link } from "react-router-dom";
 import { logInOutline } from "ionicons/icons";
 import TechHub from "../assets/TechHub_Logo.svg";
 import apiClient from "../services/apiClient";
-// hooks
-import useAuth from "../hooks/useAuth";
+// hook
 import useAuthStore from "../hooks/useAuthStore";
+import useUserProfileBlogs from "../hooks/useUserProfileBlogs";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -26,8 +26,8 @@ const Login = () => {
   const router = useIonRouter();
   const [presentLogging, dismissLogging] = useIonLoading();
   const [presentAlert] = useIonAlert();
-  const { setIsAuthenticated } = useAuth();
   const { auth, setAuth } = useAuthStore();
+  const { mutateBlogPostUser } = useUserProfileBlogs();
 
   // handle login
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
@@ -39,9 +39,8 @@ const Login = () => {
         password,
       });
       if (res.status === 200) {
-        console.log(res.data); // debug line
         await setAuth(res.data);
-        setIsAuthenticated(true);
+        await mutateBlogPostUser();
         setTimeout(() => {
           router.push("/tabs/home");
           setUsername("");
@@ -50,7 +49,6 @@ const Login = () => {
       }
       dismissLogging();
     } catch (error) {
-      setIsAuthenticated(false);
       console.log(error);
       presentAlert({
         header: "Error",

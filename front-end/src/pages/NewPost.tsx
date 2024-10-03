@@ -17,8 +17,8 @@ import {
 } from "@ionic/react";
 import { useState } from "react";
 import useAuthStore from "../hooks/useAuthStore";
-import useBlogPosts from "../hooks/useBlogPost";
 import useTopic from "../hooks/useTopic";
+import useUserProfileBlogs from "../hooks/useUserProfileBlogs";
 
 const NewPost = () => {
   const [title, setTitle] = useState("");
@@ -38,7 +38,7 @@ const NewPost = () => {
   // hooks
   const { auth } = useAuthStore();
   const { topics, addTopic } = useTopic();
-  const { createBlogPost } = useBlogPosts();
+  const { createBlogPost } = useUserProfileBlogs();
 
   const handleImageChange = (e: any) => {
     const file = e.target.files[0];

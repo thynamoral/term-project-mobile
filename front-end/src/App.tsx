@@ -36,8 +36,6 @@ import "@ionic/react/css/text-transformation.css";
 
 /* Theme variables */
 import "./theme/variables.css";
-// import { getAuth } from "./preferences/auth";
-import useAuth from "./hooks/useAuth";
 import useAuthStore from "./hooks/useAuthStore";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -47,22 +45,7 @@ import Tabs from "./pages/Tabs";
 setupIonicReact();
 
 const App = () => {
-  const { isAuthenticated, setIsAuthenticated } = useAuth();
-  const { auth } = useAuthStore();
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        setIsAuthenticated(!!auth);
-      } catch (error) {
-        console.error("Error fetching auth token:", error);
-        setIsAuthenticated(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkAuth();
-  }, [isAuthenticated]);
+  const { auth, loading } = useAuthStore();
 
   if (loading)
     return (
@@ -83,14 +66,9 @@ const App = () => {
             exact
             path="/"
             render={() =>
-              isAuthenticated ? (
-                <Redirect to="/tabs" />
-              ) : (
-                <Redirect to="/login" />
-              )
+              auth !== null ? <Redirect to="/tabs" /> : <Redirect to="/login" />
             }
           />
-          {isAuthenticated ? <Redirect to="/tabs" /> : <Redirect to="/login" />}
         </IonRouterOutlet>
       </IonReactRouter>
     </IonApp>

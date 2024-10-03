@@ -24,15 +24,23 @@ import {
   eye,
   heart,
   settingsOutline,
-  text,
 } from "ionicons/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useBlogPosts from "../hooks/useBlogPost";
-import useUser from "../hooks/useUser";
 import { formatDate } from "../utils/formateDate";
+import useAuthStore from "../hooks/useAuthStore";
+import useUserProfileBlogs from "../hooks/useUserProfileBlogs";
+import { Preferences } from "@capacitor/preferences";
 
 const Profile = () => {
+  const { auth, loading: authLoading, setAuthState } = useAuthStore();
+  const {
+    blogPostUser: blogPosts,
+    blogPostUserLoading,
+    deleteBlogPost,
+    updateReadCount,
+  } = useUserProfileBlogs();
   const [actionSheetState, setActionSheetState] = useState<{
     isOpen: boolean;
     postId?: string;
@@ -42,13 +50,6 @@ const Profile = () => {
   const [toastColor, setToastColor] = useState("toast-success"); // Default to success color
   const [toastMessage, setToastMessage] = useState("");
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
-  const { user, loading: userLoading } = useUser();
-  const {
-    blogPostUser: blogPosts,
-    loading: postsLoading,
-    deleteBlogPost,
-    updateReadCount,
-  } = useBlogPosts();
 
   const handleEdit = () => {
     if (selectedPost) {
@@ -59,7 +60,7 @@ const Profile = () => {
 
   const handleDelete = async () => {
     try {
-      await deleteBlogPost(selectedPost!, user?._id!);
+      await deleteBlogPost(selectedPost!, auth?.userId!);
       setActionSheetState({ isOpen: false });
       setToastColor("toast-error");
       setToastMessage("Post deleted successfully.");
@@ -77,7 +78,17 @@ const Profile = () => {
     setActionSheetState({ isOpen: true });
   };
 
-  if (userLoading || postsLoading) {
+  useEffect(() => {
+    const changeAuth = async () => {
+      const { value } = await Preferences.get({ key: "auth" });
+      if (value) {
+        setAuthState(JSON.parse(value));
+      }
+    };
+    changeAuth();
+  }, []);
+
+  if (blogPostUserLoading || authLoading) {
     return (
       <IonPage>
         <IonContent className="ion-padding">
@@ -85,6 +96,11 @@ const Profile = () => {
         </IonContent>
       </IonPage>
     );
+  }
+
+  if (!auth) {
+    router.push("/login");
+    return null;
   }
 
   return (
@@ -99,7 +115,7 @@ const Profile = () => {
           </IonAvatar>
           <div>
             <IonLabel style={{ fontSize: "24px", fontWeight: "700" }}>
-              {user?.username}
+              {auth?.username}
             </IonLabel>
             <IonText color="medium">{blogPosts?.length} Blogs</IonText>
           </div>

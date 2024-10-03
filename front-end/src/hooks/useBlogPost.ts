@@ -1,7 +1,6 @@
 import useSWR, { mutate } from "swr";
 import apiClient from "../services/apiClient";
 import useAuthStore from "./useAuthStore";
-import { useEffect } from "react";
 
 export type BlogPost = {
   _id?: string;
@@ -19,7 +18,7 @@ export type BlogPost = {
 const fetcher = (url: string) => apiClient.get(url).then((res) => res.data);
 
 const useBlogPosts = () => {
-  const { auth, loading: authLoading } = useAuthStore();
+  const { auth } = useAuthStore();
 
   // Fetch all blog posts
   const {
@@ -40,13 +39,6 @@ const useBlogPosts = () => {
     fetcher
   );
 
-  // Effect to refetch user's blog posts when auth.userId changes
-  useEffect(() => {
-    if (auth?.userId) {
-      mutate(`/api/blogposts/user/${auth.userId}`);
-    }
-  }, [auth?.userId]);
-
   // fetch a single blog post by ID
   const fetchBlogPostById = async (id: string) => {
     try {
@@ -57,119 +49,14 @@ const useBlogPosts = () => {
     }
   };
 
-  // Create a new blog post
-  const createBlogPost = async (post: FormData) => {
-    try {
-      const res = await apiClient.post<BlogPost>("/api/blogposts", post, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      mutate("/api/blogposts", [...(blogPosts || []), res.data], false);
-
-      if (auth?.userId) {
-        mutate(
-          `/api/blogposts/user/${auth.userId}`,
-          [...(blogPostUser || []), res.data], // Add the new post to the user's blogPosts cache
-          false
-        );
-      }
-
-      // Revalidate all blog posts after mutation
-      mutate("/api/blogposts");
-      mutate(`/api/blogposts/user/${auth?.userId}`);
-    } catch (err) {
-      throw new Error("Failed to create blog post");
-    }
-  };
-
-  // Update a blog post
-  const updateBlogPost = async (id: string, post: FormData) => {
-    try {
-      const res = await apiClient.put<BlogPost>(`/api/blogposts/${id}`, post, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      mutate(
-        `/api/blogposts`,
-        blogPosts?.map((p) => (p._id === id ? res.data : p)), // Update the blog post in the blogPosts cache
-        false
-      );
-
-      if (auth?.userId) {
-        mutate(
-          `/api/blogposts/user/${auth.userId}`,
-          blogPostUser?.map((p) => (p._id === id ? res.data : p)), // Update the blog post in the user's blogPosts cache
-          false
-        );
-      }
-
-      // Revalidate all blog posts after mutation
-      mutate("/api/blogposts");
-      mutate(`/api/blogposts/user/${auth?.userId}`);
-    } catch (err) {
-      throw new Error("Failed to update blog post");
-    }
-  };
-
-  // Delete a blog post
-  const deleteBlogPost = async (id: string, userId: string) => {
-    try {
-      await apiClient.delete(`/api/blogposts/${id}`, { data: { userId } });
-
-      mutate(
-        "/api/blogposts",
-        blogPosts?.filter((p) => p._id !== id), // Remove the blog post from the blogPosts cache
-        false
-      );
-
-      if (auth?.userId) {
-        mutate(
-          `/api/blogposts/user/${auth.userId}`,
-          blogPostUser?.filter((p) => p._id !== id), // Remove the blog post from the user's blogPosts cache
-          false
-        );
-      }
-
-      // Revalidate all blog posts after deletion
-      mutate("/api/blogposts");
-      mutate(`/api/blogposts/user/${auth?.userId}`);
-    } catch (err) {
-      throw new Error("Failed to delete blog post");
-    }
-  };
-
-  // Update the read count of a blog post
-  const updateReadCount = async (id: string) => {
-    try {
-      await apiClient.put(`/api/blogposts/${id}/readCount`);
-      mutateBlogPosts();
-      mutateBlogPostUser();
-    } catch (err) {
-      throw new Error("Failed to update read count");
-    }
-  };
-
-  // reset states
-  const resetBlogPosts = async () => {
-    if (auth?.userId)
-      await mutate(`/api/blogposts/user/${auth.userId}`, [], false);
-  };
-
   return {
     blogPosts,
     blogPostUser,
     loading,
     error,
     fetchBlogPostById,
-    createBlogPost,
-    updateBlogPost,
-    deleteBlogPost,
-    updateReadCount,
     mutateBlogPosts,
     mutateBlogPostUser,
-    resetBlogPosts,
   };
 };
 

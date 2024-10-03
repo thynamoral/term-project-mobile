@@ -38,14 +38,13 @@ const loginController = async (req, res) => {
     await foundUser.save();
 
     // Login successful
-    res
-      .status(200)
-      .json({
-        message: "Login successful!",
-        accessToken,
-        refreshToken,
-        userId: foundUser._id,
-      });
+    res.status(200).json({
+      message: "Login successful!",
+      accessToken,
+      refreshToken,
+      userId: foundUser._id,
+      username: foundUser.username,
+    });
     return;
   } catch (error) {
     console.log(error);

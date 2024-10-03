@@ -3,28 +3,27 @@ import User from "../entities/User";
 import apiClient from "../services/apiClient";
 import useAuthStore from "./useAuthStore";
 
-const getUserById = async (userId: string) => {
-  const { data } = await apiClient.get<User>(`api/users/${userId}`);
-  return data;
-};
-
 const useUser = () => {
+  const { auth, loading: authLoading } = useAuthStore();
   const [user, setUser] = useState<User | null | any>(null);
   const [loading, setLoading] = useState(true);
-  const { auth } = useAuthStore();
 
   useEffect(() => {
-    const getUser = async () => {
-      if (auth?.userId) {
-        const { data } = await apiClient.get<User>(`api/users/${auth.userId}`);
-        setUser(data);
+    const fetchUser = async () => {
+      if (auth) {
+        const res = await apiClient.get<User>(`api/users/${auth.userId}`);
+        if (res.status === 200) {
+          setUser(res.data);
+        } else {
+          setUser(null);
+        }
       } else {
         setUser(null);
       }
       setLoading(false);
     };
-    getUser();
-  }, [auth?.userId]);
+    fetchUser();
+  }, [auth, authLoading]);
 
   return { user, loading };
 };

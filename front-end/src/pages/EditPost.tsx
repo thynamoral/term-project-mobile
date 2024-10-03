@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useBlogPosts from "../hooks/useBlogPost";
 import useTopic from "../hooks/useTopic";
+import useUserProfileBlogs from "../hooks/useUserProfileBlogs";
 
 const EditPost = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,7 +39,8 @@ const EditPost = () => {
   );
   const [newTopic, setNewTopic] = useState<string>("");
   const [addNewTopic, setAddNewTopic] = useState<boolean>(false);
-  const { loading, updateBlogPost, fetchBlogPostById } = useBlogPosts();
+  const { loading, fetchBlogPostById } = useBlogPosts();
+  const { updateBlogPost } = useUserProfileBlogs();
   const { topics, addTopic } = useTopic();
   const router = useIonRouter();
 
