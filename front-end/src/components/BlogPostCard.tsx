@@ -11,10 +11,11 @@ import {
 } from "@ionic/react";
 import { formatDate } from "../utils/formateDate";
 import { heart, bookmark, eye } from "ionicons/icons";
-import useBlogPosts, { BlogPost } from "../hooks/useBlogPost";
+import { BlogPost } from "../hooks/useBlogPost";
+import useUserProfileBlogs from "../hooks/useUserProfileBlogs";
 
 const BlogPostCard = ({ post }: { post: BlogPost }) => {
-  const { updateReadCount } = useBlogPosts();
+  const { updateReadCount } = useUserProfileBlogs();
   const router = useIonRouter();
   return (
     <IonCard

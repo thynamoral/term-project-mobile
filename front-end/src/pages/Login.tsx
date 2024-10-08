@@ -59,8 +59,6 @@ const Login = () => {
     }
   };
 
-  console.log(auth);
-
   return (
     <IonPage>
       <IonContent className="ion-padding">

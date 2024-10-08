@@ -4,6 +4,7 @@ import {
   IonChip,
   IonContent,
   IonIcon,
+  IonItem,
   IonPage,
   IonText,
   IonToolbar,
@@ -122,50 +123,46 @@ const BlogPostPage = () => {
           alt="Blog post image"
           style={{ marginTop: "10px" }}
         />
+        <IonItem style={{ "--padding-start": "0" }}>
+          <IonButton
+            fill="clear"
+            onClick={likedBlogPosts ? handleUnlike : handleLike}
+          >
+            <IonIcon
+              icon={likedBlogPosts ? heart : heartOutline}
+              color="medium"
+            />
+            <IonText color="medium" style={{ marginLeft: "5px" }}>
+              {totalLikes}
+            </IonText>
+          </IonButton>
+          <IonButton
+            fill="clear"
+            onClick={bookmarkedBlogPosts ? handleUnbookmark : handleBookmark}
+          >
+            <IonIcon
+              icon={bookmarkedBlogPosts ? bookmark : bookmarkOutline}
+              color={"medium"}
+            />
+            <IonText color="medium" style={{ marginLeft: "5px" }}>
+              {totalBookmarks}
+            </IonText>
+          </IonButton>
+          {/* Read count */}
+          <div
+            style={{ height: "25px", display: "flex", alignItems: "center" }}
+          >
+            <IonIcon icon={eye} color="medium" />
+            <IonText
+              color="medium"
+              style={{ marginLeft: "7px", cursor: "default", fontSize: "12px" }}
+            >
+              {currentBlogPost.readCount}
+            </IonText>
+          </div>
+        </IonItem>
         <p style={{ whiteSpace: "pre-wrap" }}>{currentBlogPost.content}</p>
       </IonContent>
-      <IonChip
-        style={{
-          position: "fixed",
-          bottom: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 1000,
-        }}
-      >
-        <IonButton
-          fill="clear"
-          onClick={likedBlogPosts ? handleUnlike : handleLike}
-        >
-          <IonIcon
-            icon={likedBlogPosts ? heart : heartOutline}
-            color="medium"
-          />
-          <IonText color="medium" style={{ marginLeft: "5px" }}>
-            {totalLikes}
-          </IonText>
-        </IonButton>
-        <IonButton
-          fill="clear"
-          onClick={bookmarkedBlogPosts ? handleUnbookmark : handleBookmark}
-        >
-          <IonIcon
-            icon={bookmarkedBlogPosts ? bookmark : bookmarkOutline}
-            color={"medium"}
-          />
-          <IonText color="medium" style={{ marginLeft: "5px" }}>
-            {totalBookmarks}
-          </IonText>
-        </IonButton>
-        {/* Read count */}
-        <IonIcon icon={eye} color="medium" />
-        <IonText
-          color="medium"
-          style={{ marginLeft: "5px", paddingRight: "20px" }}
-        >
-          {currentBlogPost.readCount}
-        </IonText>
-      </IonChip>
     </IonPage>
   );
 };

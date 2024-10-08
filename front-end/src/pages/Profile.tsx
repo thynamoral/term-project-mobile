@@ -127,131 +127,165 @@ const Profile = () => {
             </IonFab>
           </Link>
         </IonItem>
-        <IonButton shape="round" color="light">
-          Edit Profile
-        </IonButton>
         {/* Render blog posts */}
-        <IonList>
-          {blogPosts?.map((post) => (
-            <IonCard
-              key={post._id}
-              style={{ cursor: "pointer" }}
-              onClick={async () => {
-                await updateReadCount(post._id!);
-                router.push(`/tabs/blogPost/${post._id}`);
+        {blogPosts?.length === 0 ? (
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "40px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <IonText
+              style={{
+                fontSize: "18px",
+                fontWeight: "600",
               }}
             >
-              <IonButton
-                fill="clear"
-                style={{
-                  position: "absolute",
-                  top: "3px",
-                  right: "3px",
-                  zIndex: 1,
+              You haven't posted any blog yet!
+            </IonText>
+            <IonButton
+              fill="clear"
+              style={{ fontSize: "14px" }}
+              onClick={() => router.push("/tabs/new-post")}
+            >
+              Get started
+            </IonButton>
+          </div>
+        ) : (
+          <IonList>
+            {blogPosts?.map((post) => (
+              <IonCard
+                key={post._id}
+                style={{ cursor: "pointer" }}
+                onClick={async () => {
+                  await updateReadCount(post._id!);
+                  router.push(`/tabs/blogPost/${post._id}`);
                 }}
-                onClick={(e) => openActionSheet(post._id!, e)}
               >
-                <IonIcon slot="start" color="dark" icon={ellipsisHorizontal} />
-              </IonButton>
-              <IonCardHeader>
-                <IonLabel
+                <IonButton
+                  fill="clear"
                   style={{
-                    fontSize: "20px",
-                    color: "#000",
-                    fontWeight: "600",
-                    maxWidth: "90%",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
+                    position: "absolute",
+                    top: "3px",
+                    right: "3px",
+                    zIndex: 1,
                   }}
+                  onClick={(e) => openActionSheet(post._id!, e)}
                 >
-                  {post.title}
-                </IonLabel>
-                <img
-                  src={post.image}
-                  style={{
-                    width: "100%",
-                    maxHeight: "250px",
-                    height: "auto",
-                    objectFit: "cover",
-                  }}
-                />
-              </IonCardHeader>
-              <IonCardContent>{post.content.substring(0, 100)}</IonCardContent>
-              {post.topic && post.topic.length > 0 ? (
-                <IonItem lines="none">
-                  {post.topic?.map((topic) => (
-                    <IonBadge key={topic._id} color="primary">
-                      {topic.name}
-                    </IonBadge>
-                  ))}
+                  <IonIcon
+                    slot="start"
+                    color="dark"
+                    icon={ellipsisHorizontal}
+                  />
+                </IonButton>
+                <IonCardHeader>
+                  <IonLabel
+                    style={{
+                      fontSize: "20px",
+                      color: "#000",
+                      fontWeight: "600",
+                      maxWidth: "90%",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {post.title}
+                  </IonLabel>
+                  <img
+                    src={post.image}
+                    style={{
+                      width: "100%",
+                      maxHeight: "250px",
+                      height: "auto",
+                      objectFit: "cover",
+                    }}
+                  />
+                </IonCardHeader>
+                <IonCardContent>
+                  {post.content.substring(0, 100)}
+                </IonCardContent>
+                {post.topic && post.topic.length > 0 ? (
+                  <IonItem lines="none">
+                    {post.topic?.map((topic) => (
+                      <IonBadge key={topic._id} color="primary">
+                        {topic.name}
+                      </IonBadge>
+                    ))}
+                  </IonItem>
+                ) : null}
+                {/* Date, likes, and bookmarks */}
+                <IonItem
+                  lines="none"
+                  style={{ display: "flex", height: "30px" }}
+                >
+                  <IonText
+                    color="medium"
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      marginRight: "20px",
+                    }}
+                  >
+                    {formatDate(post.createdAt!)}
+                  </IonText>
+                  {post.likes?.length > 0 ? (
+                    <IonText
+                      color="medium"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "3px",
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        marginRight: "20px",
+                      }}
+                    >
+                      <IonIcon icon={heart} color="medium" />
+                      <span>{post.likes?.length}</span>
+                    </IonText>
+                  ) : null}
+                  {post.bookmarks?.length > 0 ? (
+                    <IonText
+                      color="medium"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "3px",
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        marginRight: "20px",
+                      }}
+                    >
+                      <IonIcon icon={bookmark} color="medium" />
+                      <span>{post.bookmarks?.length}</span>
+                    </IonText>
+                  ) : null}
+                  {/* Read count */}
+                  {post.readCount > 0 ? (
+                    <IonText
+                      color="medium"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "3px",
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        marginRight: "20px",
+                      }}
+                    >
+                      <IonIcon icon={eye} color="medium" />
+                      <span>{post.readCount}</span>
+                    </IonText>
+                  ) : null}
                 </IonItem>
-              ) : null}
-              {/* Date, likes, and bookmarks */}
-              <IonItem lines="none" style={{ display: "flex", height: "30px" }}>
-                <IonText
-                  color="medium"
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    marginRight: "20px",
-                  }}
-                >
-                  {formatDate(post.createdAt!)}
-                </IonText>
-                {post.likes?.length > 0 ? (
-                  <IonText
-                    color="medium"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "3px",
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      marginRight: "20px",
-                    }}
-                  >
-                    <IonIcon icon={heart} color="medium" />
-                    <span>{post.likes?.length}</span>
-                  </IonText>
-                ) : null}
-                {post.bookmarks?.length > 0 ? (
-                  <IonText
-                    color="medium"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "3px",
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      marginRight: "20px",
-                    }}
-                  >
-                    <IonIcon icon={bookmark} color="medium" />
-                    <span>{post.bookmarks?.length}</span>
-                  </IonText>
-                ) : null}
-                {/* Read count */}
-                {post.readCount > 0 ? (
-                  <IonText
-                    color="medium"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "3px",
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      marginRight: "20px",
-                    }}
-                  >
-                    <IonIcon icon={eye} color="medium" />
-                    <span>{post.readCount}</span>
-                  </IonText>
-                ) : null}
-              </IonItem>
-            </IonCard>
-          ))}
-        </IonList>
+              </IonCard>
+            ))}
+          </IonList>
+        )}
 
         {/* Action Sheet for Edit/Delete */}
         <IonActionSheet
